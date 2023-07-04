@@ -1,28 +1,41 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+	<div id="app">
+		<div v-if="infoType===0">
+			<StartPageVue @login="changeInfoType"/>
+		</div>
+		<div v-else-if="infoType===1">
+			<BasePageVue/>
+			<div id="container"><router-view></router-view></div>
+		</div>
+	</div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import StartPageVue from './components/StartPage/StartPage.vue'
+import BasePageVue from './components/BasePage/BasePage.vue'
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
+	data(){
+		return{
+			infoType : 1
+		}
+	},
+	methods:{
+		changeInfoType(t){
+			this.$router.replace('/')
+			this.infoType = t
+		}
+	},
+ 	name:'App',
+  	components:{
+		BasePageVue,
+		StartPageVue
+  	}
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+#container{
+	position: relative;
+	top: -858px;
 }
 </style>
