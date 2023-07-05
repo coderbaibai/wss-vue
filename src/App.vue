@@ -16,12 +16,12 @@ import BasePageVue from './components/BasePage/BasePage.vue'
 export default {
 	data(){
 		return{
-			infoType : 1
+			infoType : 0
 		}
 	},
 	methods:{
 		changeInfoType(t){
-			this.$router.replace('/')
+			this.$router.push('/',()=>{},()=>{})
 			this.infoType = t
 		}
 	},

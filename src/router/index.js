@@ -4,10 +4,15 @@ import UserVue from '../components/UserPage/UserPage.vue'
 import ManageVue from '../components/ManagePage/ManagePage.vue'
 import StaticsPage from '../components/StaticsPage/StaticsPage.vue'
 import LayoutPage from '../components/LayoutPage/LayoutPage.vue'
+import TeamPage from '../components/TeamPage/TeamPage.vue'
 export default new VueRouter({
     routes: [
         {
-            path: '/',
+            path: '/'
+        },
+        {
+            path: '/team',
+            component:TeamPage
         },
         {
             path: '/user',

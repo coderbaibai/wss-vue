@@ -79,7 +79,6 @@ export default {
   methods: {
     focused(target) {
       this.styleObject = new Array(3);
-      this.styleObject[target] = "focusStyle";
       this.styleObject.splice(target, 1, "focusStyle");
     },
     unfocused() {

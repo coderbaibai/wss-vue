@@ -18,7 +18,7 @@
         <el-button class="eiconItem" type="info" plain>销</el-button>
       </div>
       <div class="iconItem" id="add">
-        <el-button id="addItem" class="eiconItem" plain></el-button
+        <el-button id="addItem" class="eiconItem" plain @click="addTeam"></el-button
         ><img id="addImg" src="../../assets/add.svg" />
       </div>
     </div>
@@ -103,6 +103,11 @@ export default {
       ],
     };
   },
+  methods:{
+    addTeam(){
+      this.$emit('addTeam')
+    }
+  }
 };
 </script>
 

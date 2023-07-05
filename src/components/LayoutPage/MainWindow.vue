@@ -11,15 +11,17 @@
         </div>
         <div id="addDiv">
             <span class="innerSpan"></span>
-            <el-button  icon="el-icon-circle-plus-outline" class="innerText" type="primary"></el-button>
+            <el-button @click="addPage"  icon="el-icon-circle-plus-outline" class="innerText" type="primary"></el-button>
         </div>
         <div id="changeDiv">
             <span class="innerSpan"></span>
-            <el-button icon="el-icon-edit" type="primary" class="innerText"></el-button>
+            <el-button @click="changePage" icon="el-icon-edit" type="primary" class="innerText"></el-button>
         </div>
         <div id="deleteDiv">
             <span class="innerSpan"></span>
-            <el-button icon="el-icon-delete" class="innerText" type="danger"></el-button>
+            <el-popconfirm title="确定删除当前页面及其布局吗" @confirm="deletePage">
+                <el-button slot="reference" icon="el-icon-delete" class="innerText" type="danger"></el-button>
+            </el-popconfirm>
         </div>
         <canvas id="canvasBox">
         </canvas>
@@ -28,7 +30,17 @@
 
 <script>
 export default {
-
+    methods:{
+        addPage(){
+            this.$emit('addPage');
+        },
+        changePage(){
+            this.$emit('changePage');
+        },
+        deletePage(){
+            this.$emit('deletePage');
+        }
+    }
 }
 </script>
 <style lang="scss" scoped>

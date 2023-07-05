@@ -41,6 +41,8 @@ export default {
   height: 200px;
   width: 200px;
   border-radius: 100px;
+  object-fit: cover;
+  flex: 1;
 }
 #avatarBox {
   position: relative;
@@ -48,6 +50,7 @@ export default {
   width: 200px;
   top: 0;
   left: 0;
+
 }
 #changeImg {
   position: absolute;

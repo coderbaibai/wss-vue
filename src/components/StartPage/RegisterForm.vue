@@ -13,7 +13,7 @@
         <el-checkbox v-model="checked" id="policyInput"></el-checkbox>
         <div id="policis"> By signing up, you accept our Terms of Service and Privacy <a href="https://www.bilibili.com/">Policy</a>.</div>
     </div>
-    <div id="sign" @click="loginVerify">
+    <div id="sign" @click="signVerify">
         <el-button id="signButton" type="primary">Sign up</el-button>
     </div>
     <div id="error" v-show="isShow">
@@ -43,18 +43,43 @@ export default {
                 height: "392px"
             }
         },
+        changeErrorAndShow(msg){
+            this.errMessage = msg
+            this.isShow = true;
+            this.formStyle={
+                height: "392px"
+            }
+        },
         hideError(){
             this.isShow = false;
             this.formStyle=null
         },
-        loginVerify(){
-            if(this.username!=''&&this.password!=''){
-                this.hideError()
-                this.$emit('login',1)
+        signVerify(){
+            var userNameReg = /^[A-Za-z0-9]{2,15}$/
+            var passwordReg = /^[A-Za-z0-9]{2,15}$/
+            if(this.username==''||this.password==''||this.repassword==''){
+                this.errMessage = '用户名或密码不应为空'
+                this.showError()
+            }
+            else if(!userNameReg.test(this.username)){
+                this.errMessage = '用户名应为2-15位英文或数字'
+                this.showError()
+            }
+            else if(!passwordReg.test(this.password)){
+                this.errMessage = '密码应为2-15位英文或数字'
+                this.showError()
+            }
+            else if(this.password!=this.repassword){
+                this.errMessage = '两次输入的密码不符'
+                this.showError()
+            }
+            else if(!this.checked){
+                this.errMessage = '请同意用户协议'
+                this.showError()
             }
             else{
-                this.errMessage = 'empty username or password'
-                this.showError()
+                this.hideError()
+                this.$emit('register',this.username,this.password)
             }
         }
     }

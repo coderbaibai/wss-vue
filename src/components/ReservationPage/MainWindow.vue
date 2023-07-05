@@ -33,8 +33,8 @@ export default {
 }
 #mainWindow{
     position: relative;
-    height: 679px;
-    width: 1097px;
+    height: 714px;
+    width: 1170px;
     background-color: white;
     border-radius: 4px;
 }
@@ -117,8 +117,8 @@ export default {
     position: absolute;
     top: 50px;
     left: 41px;
-    height: 600px;
-    width: 1000px;
+    height: 650px;
+    width: 1100px;
     border: 1px solid #C8C9CD;
     border-radius: 4px;
 }

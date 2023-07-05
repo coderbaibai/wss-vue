@@ -1,8 +1,8 @@
 <template>
 <div id="formDiv">
     <div id="form">
-        <LoginFormVue v-if="isLogin" @change="change" @login="login"/>
-        <RegisterFormVue v-else @login="login"/>
+        <LoginFormVue ref="login" v-if="isLogin" @change="change" @login="login"/>
+        <RegisterFormVue ref="register" v-else @register="register"/>
     </div>
 </div>
 </template>
@@ -20,8 +20,12 @@ export default {
         change(){
             this.isLogin = !this.isLogin
         },
-        login(){
+        login(username,password){
+            // this.$refs.login.changeErrorAndShow('用户名或密码错误')
             this.$emit('login',1)
+        },
+        register(username,password){
+
         }
     },
     components:{

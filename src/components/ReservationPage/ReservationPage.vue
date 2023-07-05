@@ -27,7 +27,7 @@ export default {
 <style scoped>
 #mw{
     position: absolute;
-    top: 150px;
+    top: 135px;
     left: 239px;
 }
 #reservationPage{
@@ -36,7 +36,7 @@ export default {
 #statusItems{
     position: absolute;
     top: 35px;
-    left: 238px;
+    left: 268px;
     width: 1111px;
 }
 .statusItem{

@@ -78,7 +78,7 @@ export default {
 #edl {
   position: absolute;
   top: 34px;
-  left: 1220px;
+  left: 1210px;
   height: 810px;
   width: 330px;
 }

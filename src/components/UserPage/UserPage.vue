@@ -4,18 +4,29 @@
         <div id="UserAvatarDiv"><UserAvatarVue/></div>
         <div id="UsernameTextDiv"><UsernameTextVue/></div>
         <div id="InfoBoxDiv"><InfoBoxVue/></div>
-        <div id="ReservationBoxDiv"><ReservationBoxVue/></div>
+        <div id="ReservationBoxDiv"><ReservationBoxVue @addTeam="isAdd=true"/></div>
     </div>
+    <el-dialog title="区域修改" :visible.sync="isAdd">
+		<el-table :data="gridData">
+			<el-table-column property="date" label="日期" width="150"></el-table-column>
+			<el-table-column property="name" label="姓名" width="200"></el-table-column>
+			<el-table-column property="address" label="地址"></el-table-column>
+		</el-table>
+	</el-dialog>
 </div>
 </template>
 
 <script>
-
 import InfoBoxVue from './InfoBox.vue'
 import ReservationBoxVue from './ReservationBox.vue'
 import UserAvatarVue from './UserAvatar.vue'
 import UsernameTextVue from './UsernameText.vue'
 export default {
+    data(){
+        return{
+            isAdd:false
+        }
+    },
     components:{
         InfoBoxVue,
         ReservationBoxVue,
@@ -28,10 +39,10 @@ export default {
 <style scoped>
 #UserPage{
     position: absolute;
-    top: 30px;
-    left: 235px;
-    width: 1280px;
-    height: 815px;
+    top: 25px;
+    left: 230px;
+    width: 1310px;
+    height: 832px;
     background-color: white;
     border-radius: 5px;
     border-width: 3px;
@@ -55,6 +66,5 @@ export default {
     position:absolute;
     left:359px;
     top: 241px;
-
 }
 </style>

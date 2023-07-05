@@ -13,7 +13,7 @@
         <el-button id="createButton" plain>Create Account</el-button>
     </div>
     <div id="error" v-show="isShow">
-        <el-button id="errorButton" type="danger" disabled>{{errMessage}}</el-button>
+        <el-button style="text-Align:center" id="errorButton" type="danger" disabled>{{errMessage}}</el-button>
     </div>
 </form>
 </template>
@@ -40,18 +40,35 @@ export default {
                 height: "301px"
             }
         },
+        changeErrorAndShow(msg){
+            this.errMessage = msg
+            this.isShow = true;
+            this.formStyle={
+                height: "301px"
+            }
+        },
         hideError(){
             this.isShow = false;
             this.formStyle=null
         },
         loginVerify(){
-            if(this.username!=''&&this.password!=''){
-                this.hideError()
-                this.$emit('login',1)
+            var userNameReg = /^[A-Za-z0-9]{2,15}$/
+            var passwordReg = /^[A-Za-z0-9]{2,15}$/
+            if(this.username==''||this.password==''){
+                this.errMessage = '用户名或密码不应为空'
+                this.showError()
+            }
+            else if(!userNameReg.test(this.username)){
+                this.errMessage = '用户名应为2-15位英文或数字'
+                this.showError()
+            }
+            else if(!passwordReg.test(this.password)){
+                this.errMessage = '密码应为2-15位英文或数字'
+                this.showError()
             }
             else{
-                this.errMessage = 'empty username or password'
-                this.showError()
+                this.hideError()
+                this.$emit('login',this.username,this.password)
             }
         }
     }

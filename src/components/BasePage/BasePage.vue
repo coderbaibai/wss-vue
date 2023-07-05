@@ -12,11 +12,10 @@
             <li><img src="../../assets/HIT.png" alt="" style="width:185px;"></li>
             <li :class="liObject[0]" @click ="turnToUser(0)"><div class="left-div"></div><div class="textDiv" href="#">工位预约</div></li>
             <li :class="liObject[1]" @click ="turnToUser(1)"><div class="left-div"></div><div class="textDiv" href="#">布局管理</div></li>
-            <li :class="liObject[2]" @click ="turnToUser(2)"><div class="left-div"></div><div class="textDiv" href="#">工位编辑</div></li>
-            <li :class="liObject[3]" @click ="turnToUser(3)"><div class="left-div"></div><div class="textDiv" href="#">工位管理</div></li>
-            <li :class="liObject[4]" @click ="turnToUser(4)"><div class="left-div"></div><div class="textDiv" href="#">统计报表</div></li>
-            <li :class="liObject[5]" @click ="turnToUser(5)"><div class="left-div"></div><div class="textDiv" href="#">公司主页</div></li>
-            <li :class="liObject[6]" @click ="turnToUser(6)"><div class="left-div"></div><div class="textDiv" href="#">个人主页</div></li>
+            <li :class="liObject[2]" @click ="turnToUser(2)"><div class="left-div"></div><div class="textDiv" href="#">工位管理</div></li>
+            <li :class="liObject[3]" @click ="turnToUser(3)"><div class="left-div"></div><div class="textDiv" href="#">统计报表</div></li>
+            <li :class="liObject[4]" @click ="turnToUser(4)"><div class="left-div"></div><div class="textDiv" href="#">公司主页</div></li>
+            <li :class="liObject[5]" @click ="turnToUser(5)"><div class="left-div"></div><div class="textDiv" href="#">个人主页</div></li>
         </ul>
     </div>
 </div>
@@ -44,20 +43,18 @@ export default {
                     this.$router.push("/layout",()=>{},()=>{})
                     break;
                 case 2:
-                    this.pageName = '工位编辑'
-                    break;
-                case 3:
                     this.pageName = '工位管理'
                     this.$router.push("/manage",()=>{},()=>{})
                     break;
-                case 4:
+                case 3:
                     this.pageName = '统计报表'
                     this.$router.push("/statics",()=>{},()=>{})
                     break;
-                case 5:
+                case 4:
                     this.pageName = '公司主页'
+                    this.$router.push("/team",()=>{},()=>{})
                     break;
-                case 6:
+                case 5:
                     this.pageName = '个人主页'
                     this.$router.push("/user",()=>{},()=>{})
                     break;
@@ -70,7 +67,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 *{
     margin: 0;
     padding: 0;
