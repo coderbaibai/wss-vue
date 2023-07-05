@@ -1,10 +1,12 @@
 <template>
   <div id="InfoBox" @mouseenter="isFocus = true" @mouseleave="isFocus = false">
     <div :class="{'focusHighlight':isFocus}" id="info">资料</div>
-    <div class="itemShow" :class="styleObject[0]" id="realName">真实姓名</div>
+    <div class="itemShow" :class="styleObject[0]" id="username">用户名</div>
+    <div id="saveButton" v-if="isChange"><el-button type="primary" size="small" @click="saveAllChange">保存</el-button></div>
+    <div id="canvcelButton" v-if="isChange"><el-button size="small" @click="cancelAllChange" >取消</el-button></div>
     <div class="itemDiv" id="irealName">
       <el-input
-        v-model="realName"
+        v-model.trim="username"
         id="erealName"
         size="mini"
         @focus="focused(0)"
@@ -13,7 +15,7 @@
     </div>
     <div class="itemShow" id="wid">工号</div>
     <div class="itemDiv" id="iwid">
-      <el-input disabled v-model="wid" id="ewid" size="mini"></el-input>
+      <el-input disabled v-model.trim="wid" id="ewid" size="mini"></el-input>
     </div>
     <div class="itemShow" :class="styleObject[1]" id="gender">性别</div>
     <div class="itemDiv" id="igender">
@@ -22,7 +24,7 @@
         size="mini"
         @focus="focused(1)"
         @blur="unfocused"
-        v-model="gender"
+        v-model.trim="gender"
         clearable
         placeholder="请选择"
       >
@@ -34,15 +36,15 @@
         >
         </el-option>
       </el-select>
-      <!-- <el-input maxlength='1' v-model="gender" id="egender" size="mini" @focus="focused(1)" @blur="unfocused"></el-input> -->
+      <!-- <el-input maxlength='1' v-model.trim="gender" id="egender" size="mini" @focus="focused(1)" @blur="unfocused"></el-input> -->
     </div>
     <div class="itemShow" id="post">职务</div>
     <div class="itemDiv" id="ipost">
-      <el-input disabled v-model="post" id="epost" size="mini"></el-input>
+      <el-input disabled v-model.trim="post" id="epost" size="mini"></el-input>
     </div>
     <div class="itemShow" id="team">团队</div>
     <div class="itemDiv" id="iteam">
-      <el-input disabled v-model="team" id="eteam" size="mini"></el-input>
+      <el-input disabled v-model.trim="team" id="eteam" size="mini"></el-input>
     </div>
     <div class="itemShow" :class="styleObject[2]" id="profile">简介</div>
     <div class="itemDiv" id="iprofile">
@@ -51,7 +53,7 @@
         @blur="unfocused"
         maxlength="30"
         show-word-limit
-        v-model="profile"
+        v-model.trim="profile"
         id="eprofile"
         type="textarea"
         :rows="3"
@@ -65,16 +67,20 @@
 export default {
   data() {
     return {
-      realName: "胡桃",
-      wid: 5201314,
-      gender: "女",
-      post: "往生堂第77代堂主",
-      team: "往生堂",
-      profile: "胡桃是我老婆。",
+      username: this.userInfo.username,
+      wid: this.userInfo.wid,
+      gender: this.userInfo.gender,
+      post: this.userInfo.post,
+      team: this.userInfo.team,
+      profile: this.userInfo.profile,
       styleObject: [],
       genders: ["男", "女"],
-      isFocus : false
+      isFocus : false,
+      isChange :false
     };
+  },
+  props:{
+    userInfo:Object
   },
   methods: {
     focused(target) {
@@ -84,7 +90,34 @@ export default {
     unfocused() {
       this.styleObject = new Array(3);
     },
+    diff(){
+      return this.username === this.userInfo.username&&
+        this.gender === this.userInfo.gender&&
+        this.profile === this.userInfo.profile
+    },
+    saveAllChange(){
+      this.$emit('save',this.username,this.gender,this.profile)
+    },
+    cancelAllChange(){
+      this.username = this.userInfo.username
+      this.gender = this.userInfo.gender
+      this.profile = this.userInfo.profile
+    },
+    successfulSave(){
+      this.isChange = this.diff()
+    }
   },
+  watch:{
+    username(){
+      this.isChange = !this.diff()
+    },
+    gender(){
+      this.isChange = !this.diff()
+    },
+    profile(){
+      this.isChange = !this.diff()
+    }
+  }
 };
 </script>
 
@@ -97,6 +130,16 @@ export default {
   position: relative;
   width: 303px;
   height: 530px;
+}
+#saveButton{
+  position: absolute;
+  left: 185px;
+  top: 550px;
+}
+#canvcelButton{
+  position: absolute;
+  left: 250px;
+  top: 550px;
 }
 #info {
   width: 100px;
@@ -140,7 +183,7 @@ export default {
   width: 300px;
   height: 27px;
 }
-#realName {
+#username {
   top: 60px;
 }
 #irealName {

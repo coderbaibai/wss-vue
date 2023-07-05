@@ -5,42 +5,42 @@
         <div class="innerItem" style="background-color: rgb(52, 142, 238)">
           <img class="innerImg" src="../../assets/Statics/data_1.svg" />
         </div>
-        <div class="innerNumber">803</div>
+        <div class="innerNumber">{{seats}}</div>
         <div class="innerExt" style="left: 86%">总工位数量</div>
       </div>
       <div class="headerItem">
         <div class="innerItem" style="background-color: rgb(57, 174, 106)">
           <img class="innerImg" src="../../assets/Statics/data_2.svg" />
         </div>
-        <div class="innerNumber">232</div>
+        <div class="innerNumber">{{reservationSeats}}</div>
         <div class="innerExt">预约类工位数量</div>
       </div>
       <div class="headerItem">
         <div class="innerItem" style="background-color: rgb(236, 146, 44)">
           <img class="innerImg" src="../../assets/Statics/data_3.svg" />
         </div>
-        <div class="innerNumber">142</div>
+        <div class="innerNumber">{{allocatedSeats}}</div>
         <div class="innerExt">分配类工位数量</div>
       </div>
       <div class="headerItem">
         <div class="innerItem" style="background-color: rgb(221, 64, 32)">
           <img class="innerImg" src="../../assets/Statics/people.svg" />
         </div>
-        <div class="innerNumber">657</div>
+        <div class="innerNumber">{{areas}}</div>
         <div class="innerExt" style="left: 86%">总区域数量</div>
       </div>
       <div class="headerItem">
         <div class="innerItem" style="background-color: rgb(220, 108, 171)">
           <img class="innerImg" src="../../assets/Statics/seats.svg" />
         </div>
-        <div class="innerNumber">12</div>
+        <div class="innerNumber">{{emps}}</div>
         <div class="innerExt">总员工数量</div>
       </div>
       <div class="headerItem">
         <div class="innerItem" style="background-color: rgb(150, 101, 219)">
           <img class="innerImg" src="../../assets/Statics/distract.svg" />
         </div>
-        <div class="innerNumber">14</div>
+        <div class="innerNumber">{{reservations}}</div>
         <div class="innerExt">总预约数量</div>
       </div>
     </div>
@@ -53,8 +53,112 @@
 <script>
 require("echarts/theme/shine");
 export default {
+  data(){
+    return{
+      curMonth:new Date().getMonth()+1,
+      ratesObject:[],
+      ns:[],
+      averageTimes:[],
+      members:[],
+      seats:0,
+      reservationSeats:0,
+      allocatedSeats:0,
+      areas:0,
+      emps:0,
+      reservations:0,
+    }
+  },
   mounted() {
-    this.drawLine();
+    // var res= {data:{
+    //     code:1,
+    //     data:{
+    //         ratesObject:[{
+    //           area:{
+    //             buildingName:'明学楼',
+    //             floorName:'5F',
+    //             areaName:'501'
+    //           },
+    //           rates:[86,85,84,88,93,92]
+    //         },
+    //         {
+    //           area:{
+    //             buildingName:'宁学楼',
+    //             floorName:'5F',
+    //             areaName:'501'
+    //           },
+    //           rates:[91,89,79,85,84,88]
+    //         }],
+    //         averageTimes:[101,56,87,92,15,76,35,96,15,68,45,49],
+    //         members:[{
+    //           post:'前端',
+    //           number:10
+    //         },
+    //         {
+    //           post:'后端',
+    //           number:20
+    //         },
+    //         {
+    //           post:'测试',
+    //           number:30
+    //         },
+    //         {
+    //           post:'产品',
+    //           number:40
+    //         },
+    //         {
+    //           post:'运维',
+    //           number:50
+    //         },
+    //         {
+    //           post:'设计',
+    //           number:60
+    //         }],
+    //         seats:12,
+    //         reservationSeats:45,
+    //         allocatedSeats:67,
+    //         areas:78,
+    //         emps:97,
+    //         reservations:545,
+    //       }
+    //     }
+    // }
+    this.$http.get('/statics/info',{timeout:5000})
+    .then(res => {
+      if(res.data.code==1){
+        this.ratesObject = res.data.data.ratesObject;
+        for(let i =0;i<this.ratesObject.length;i++){
+          this.ratesObject[i].name = this.ns[i] = this.ratesObject[i].area.buildingName+this.ratesObject[i].area.floorName+this.ratesObject[i].area.areaName;
+          this.ratesObject[i].type = 'line';
+          this.ratesObject[i].data = this.ratesObject[i].rates
+        }
+        this.averageTimes = res.data.data.averageTimes;
+        this.members = res.data.data.members
+        for(let i =0;i<res.data.data.members.length;i++){
+          this.members[i].name = res.data.data.members[i].post;
+          this.members[i].value = res.data.data.members[i].number;
+        }
+
+        this.seats = res.data.data.seats,
+        this.reservationSeats = res.data.data.reservationSeats
+        this.allocatedSeats=res.data.data.allocatedSeats,
+        this.areas=res.data.data.areas,
+        this.emps=res.data.data.emps,
+        this.reservations=res.data.data.reservations,
+        this.drawLine();
+      }
+      else{
+        this.$message({
+          message: res.data.msg,
+          type: 'error'
+        });
+      }
+    })
+    .catch(err => {
+      this.$message({
+				message: "服务器访问错误",
+				type: 'error'
+			});
+    })
   },
   methods: {
     drawLine() {
@@ -74,24 +178,7 @@ export default {
         series: [
           {
             type: "pie",
-            data: [
-              {
-                name: "前端工程师",
-                value: 35,
-              },
-              {
-                name: "后端工程师",
-                value: 50,
-              },
-              {
-                name: "系统架构师",
-                value: 5,
-              },
-              {
-                name: "产品经理",
-                value: 10,
-              },
-            ],
+            data: this.members,
             radius: "50%",
           },
         ],
@@ -128,12 +215,12 @@ export default {
           tooltip: {
             show: true,
           },
-          data: ["研究院", "明学楼", "宁学楼"],
+          data: this.ns,
         },
         xAxis: {
           type: "category",
           boundaryGap: false,
-          data: ["1月", "2月", "3月", "4月", "5月", "6月"],
+          data: [(this.curMonth-5)%12+1+'月',(this.curMonth-4)%12+1+'月',(this.curMonth-3)%12+1+'月',(this.curMonth-2)%12+1+'月',(this.curMonth-1)%12+1+'月',this.curMonth%12+1+'月'],
         },
         yAxis: {
           type: "value",
@@ -141,23 +228,7 @@ export default {
             return value.min - 5;
           },
         },
-        series: [
-          {
-            name: "研究院",
-            data: [80, 91, 70, 75, 84, 68],
-            type: "line",
-          },
-          {
-            name: "明学楼",
-            data: [90, 86, 76, 82, 79, 87],
-            type: "line",
-          },
-          {
-            name: "宁学楼",
-            data: [82, 79, 85, 86, 83, 90],
-            type: "line",
-          },
-        ],
+        series: this.ratesObject,
       });
 	  myChart = this.$echarts.init(
         document.getElementById("rightItem"),
@@ -188,14 +259,14 @@ export default {
 		},
 		xAxis:{
 			type: "category",
-			data: ["1月", "2月", "3月", "4月", "5月", "6月", "7月","8月","9月","10月","11月","12月"],
+			data: [(this.curMonth-11)%12+1+'月', (this.curMonth-10)%12+1+'月', (this.curMonth-9)%12+1+'月', (this.curMonth-8)%12+1+'月', (this.curMonth-7)%12+1+'月', (this.curMonth-6)%12+1+'月', (this.curMonth-5)%12+1+'月',(this.curMonth-4)%12+1+'月',(this.curMonth-3)%12+1+'月',(this.curMonth-2)%12+1+'月',(this.curMonth-1)%12+1+'月',this.curMonth%12+1+'月'],
 		},
-		  yAxis: {
+		yAxis:{
 			type: 'value'
 		},
 		series:[
 			{
-				data: [120, 200, 150, 80, 70, 110, 120, 200, 150, 80, 70, 110],
+				data: this.averageTimes,
 				type: 'bar',
 				showBackground: true,
 				backgroundStyle: {

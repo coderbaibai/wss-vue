@@ -2,16 +2,58 @@
 <div>
     <div id="UserPage">
         <div id="UserAvatarDiv"><UserAvatarVue/></div>
-        <div id="UsernameTextDiv"><UsernameTextVue/></div>
-        <div id="InfoBoxDiv"><InfoBoxVue/></div>
-        <div id="ReservationBoxDiv"><ReservationBoxVue @addTeam="isAdd=true"/></div>
+        <div id="UsernameTextDiv"><UsernameTextVue :name="userInfo.name" @changeName="saveName" ref="name"/></div>
+        <div id="InfoBoxDiv"><InfoBoxVue :userInfo="userInfo" @save="saveInfoBox" ref="infoBox"/></div>
+        <div id="ReservationBoxDiv"><ReservationBoxVue :reservations="reservations" @changeStatus="changeStatus" @renewReservation="renewReservation" @addTeam="searchTeam" @logout="logout"/></div>
     </div>
-    <el-dialog title="区域修改" :visible.sync="isAdd">
-		<el-table :data="gridData">
-			<el-table-column property="date" label="日期" width="150"></el-table-column>
-			<el-table-column property="name" label="姓名" width="200"></el-table-column>
-			<el-table-column property="address" label="地址"></el-table-column>
+    <el-dialog title="加入团队" :visible.sync="isAdd">
+		<el-table :data="teams">
+			<el-table-column align="center" property="name" label="团队名" width="250">
+                <template slot-scope="scope">
+				    <img :src="scope.row.url" style="width:30px;height:30px;border-radius:15px;position:relative;top:3px">
+				    <span style="margin-left: 20px;position:relative;top:-7px">{{ scope.row.name }}</span>
+			    </template>
+            </el-table-column>
+			<el-table-column align="center" property="id" label="团队id" width="350"></el-table-column>
+			<el-table-column align="center" label="是否加入">
+                <template slot-scope="scope">
+                <el-button type="primary" size="mini" style="width:50px;padding-left:12px" @click="joinTeam(Number(scope.row.id))">加入</el-button>
+                <el-button type="danger" plain size="mini" style="width:50px;padding-left:12px" @click="refuseTeam(Number(scope.row.id))">拒绝</el-button>
+                </template>
+            </el-table-column>
 		</el-table>
+	</el-dialog>
+    <el-dialog title="续约" :visible.sync="isRenew" width="800px">
+        <el-form>
+		<el-form-item label="请选择续约时间：">
+            <el-col :span="7"> 
+                <el-time-select
+                    style="width:100%"
+                    placeholder="起始时间"
+                    v-model="reservations[0].startTime"
+                    disabled>
+                </el-time-select>
+            </el-col>
+            <el-col :span="1" style="text-align:center">-</el-col>
+            <el-col :span="7">
+                <el-time-select
+                    style="width:100%"
+                    placeholder="结束时间"
+                    v-model="currentEndTime"
+                    :picker-options="{
+                    start: '10:30',
+                    step: '00:30',
+                    end: this.endTime
+                    }"
+                    >
+                </el-time-select>
+            </el-col>
+        </el-form-item>
+        </el-form>
+        <div slot="footer">
+                <el-button @click="renewPut" type="primary">修改</el-button>
+                <el-button @click="isRenew = false">取消</el-button>
+        </div>
 	</el-dialog>
 </div>
 </template>
@@ -20,11 +62,237 @@
 import InfoBoxVue from './InfoBox.vue'
 import ReservationBoxVue from './ReservationBox.vue'
 import UserAvatarVue from './UserAvatar.vue'
-import UsernameTextVue from './UsernameText.vue'
+import UsernameTextVue from './NameText.vue'
 export default {
     data(){
         return{
-            isAdd:false
+            isAdd:false,
+            isRenew:false,
+            endTime:'18:30',
+            teams:null,
+            currentEndTime:'',
+            userInfo:{
+                username:'1273698633',
+                name:'爱学习的小白',
+                profile:'',
+                wid:'',
+                gender:'',
+                post:'',
+                team:''
+            },
+            reservations:[{
+                date:"2022-07-08",
+                startTime:"15:30",
+                endTime:"16:30",
+                workstation:"明学楼2F301",
+                status:"已履约"
+            },
+            {    
+                date:"2022-07-08",
+                startTime:"15:30",
+                endTime:"18:30",
+                workstation:"明学楼2F301",
+                status:"已履约"
+            },
+            {
+                date:"2022-07-08",
+                startTime:"15:30",
+                endTime:"18:30",
+                workstation:"明学楼2F301",
+                status:"已履约"
+            }]
+        }
+    },
+    mounted(){
+        this.$http.get('/users/info',{timeout:3000})
+        .then(res=>{
+            if(res.code==1){
+                this.userInfo = res.data.data.userInfo
+                this.reservations = res.data.data.reservations
+                this.initReservations();
+                if(this.reservations[0])
+                    this.currentEndTime=this.reservations[0].endTime
+            }
+            else{
+                this.$message({
+                    message:res.data.msg,
+                    type:"error"
+                })
+            }
+        })
+        .catch(()=>{
+            this.$message({
+                message:"服务器访问错误",
+                type:"error"
+            })
+        })
+    },
+    methods:{
+        initReservations(){
+            this.reservations.forEach(item=>{
+                item.druation = item.date+' '+item.startTime+'-'+item.endTime
+            })
+        },
+        saveInfoBox(username,gender,profile){
+            this.$http.put('/users/info',{username:username,gender:gender,profile:profile},{timeout:1000})
+            .then((res)=>{
+                if(res.data.code==1){
+                    this.userInfo.username = username
+                    this.userInfo.gender = gender
+                    this.userInfo.profile = profile
+                    this.$refs.infoBox.successfulSave()
+                    this.$message({
+                        message:"保存成功",
+                        type:"success"
+                    })
+                }
+                else{
+                    this.$message({
+                        message:res.data.msg,
+                        type:"error"
+                    })
+                    this.$refs.infoBox.cancelAllChange()
+                }
+            })
+            .catch(()=>{
+                this.$message({
+                    message:'服务器访问错误',
+                    type:"error"
+                })
+                this.$refs.infoBox.cancelAllChange()
+            })
+        },
+        saveName(newName){
+            this.$http.put('/users/name',{name:newName},{timeout:1000})
+            .then((res)=>{
+                if(res.data.code==1){
+                    this.userInfo.name = newName
+                    this.$message({
+                        message:"保存成功",
+                        type:"success"
+                    })
+                }
+                else{
+                    this.$message({
+                        message:res.data.msg,
+                        type:"error"
+                    })
+                    this.$refs.name.cancelAllChange()
+                }
+            })
+            .catch(()=>{
+                this.$message({
+                    message:'服务器访问错误',
+                    type:"error"
+                })
+                this.$refs.name.cancelAllChange()
+            })
+        },
+        renewReservation(endTime){
+            this.isRenew = true
+            console.log(endTime);
+            this.endTime = endTime
+        },
+        renewPut(){
+            this.$http.put('/users/renew',{endTime:this.currentEndTime},{timeout:1000})
+            .then(e=>{
+                    if(e.data.code==1){
+                        this.$message({
+                            message: '续约成功',
+                            type: 'success'
+                        });
+                        this.isRenew = false
+                    }
+                    else{
+                        this.$message({
+                            message:e.data.msg,
+                            type: 'error'
+                        });
+                        this.currentEndTime = this.reservations[0].endTime
+                        this.isRenew = false
+                    }
+                })
+                .catch(()=>{
+                    this.$message({
+                        message: '服务器访问错误',
+                        type: 'error'
+                    });
+                    this.currentEndTime = this.reservations[0].endTime
+                    this.isRenew = false
+                })
+        },
+        changeStatus(){
+            this.reservations[0].status = '已签到'
+        },
+        logout(){
+            this.$emit('logout')
+        },
+        searchTeam(){
+            this.isAdd = true
+            this.$http.get('/users/invites',{timeout:1000})
+            .then(e=>{
+                if(e.data.code==1){
+                    this.teams = e.data.data.teams
+                }
+                else{
+                    this.$message({
+                        message:e.data.msg,
+                        type: 'error'
+                    });
+                }
+            })
+            .catch(()=>{
+                this.$message({
+                    message: '服务器访问错误',
+                    type: 'error'
+                });
+            })
+        },
+        joinTeam(tid){
+            this.$http.post('/users/invites',{id:tid},{timeout:1000})
+            .then(e=>{
+                if(e.data.code==1){
+                    this.$message({
+                        message:'成功加入团队',
+                        type: 'success'
+                    });
+                }
+                else{
+                    this.$message({
+                        message:e.data.msg,
+                        type: 'error'
+                    });
+                }
+            })
+            .catch(()=>{
+                this.$message({
+                    message: '服务器访问错误',
+                    type: 'error'
+                });
+            })
+        },
+        refuseTeam(tid){
+            this.$http.delete('/users/invites',{data:{id:tid},timeout:1000})
+            .then(e=>{
+                if(e.data.code==1){
+                    this.$message({
+                        message:'拒绝成功',
+                        type: 'success'
+                    });
+                }
+                else{
+                    this.$message({
+                        message:e.data.msg,
+                        type: 'error'
+                    });
+                }
+            })
+            .catch(()=>{
+                this.$message({
+                    message: '服务器访问错误',
+                    type: 'error'
+                });
+            })
         }
     },
     components:{

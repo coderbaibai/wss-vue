@@ -23,7 +23,7 @@
             </el-form>
             <div slot="footer">
                 <el-button type="primary">修改</el-button>
-                <el-button>取消</el-button>
+                <el-button @click="isChange = false">取消</el-button>
             </div>
         </el-dialog>
         <el-dialog title="区域修改" :visible.sync="isAdd">

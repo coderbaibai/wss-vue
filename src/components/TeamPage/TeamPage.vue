@@ -35,7 +35,7 @@
       </div>
       <div :class="styleObject[0]" class="infoText" style="top: 175px">团队名：</div>
       <div class="itemDiv" style="top: 200px">
-        <el-input @focus="focused(0)" v-model="tname" id="tname" size="mini"></el-input>
+        <el-input @focus="focused(0)" v-model="nameNew" id="tname" size="mini"></el-input>
       </div>
       <div :class="styleObject[1]" class="infoText" style="top: 245px">办公地：</div>
       <div class="itemDiv" style="top: 270px">
@@ -64,7 +64,7 @@
 		<el-table :row-style="tableStyle" :data="tableData" height="700" stripe style="width: 100%">
 			<el-table-column label="姓名" width="200">
 			<template slot-scope="scope">
-				<img :src="scope.row.url" style="width:50px;height:50px;border-radius:25px;position:relative;top:3px">
+				<img :src="scope.row.url" style="width:50px;height:50px;border-radius:25px;position:relative;top:5px">
 				<span style="margin-left: 20px;position:relative;top:-16px">{{ scope.row.name }}</span>
 			</template>
 			</el-table-column>
@@ -110,14 +110,16 @@
 export default {
   data() {
     return {
+      team:null,
+      emps:[],
       searchMsg: "",
       select: "1",
       tid: 6666666666666,
-      tname: "阿帕茶特供店",
+      nameNew: "阿帕茶特供店",
       place: "北京市海淀区",
       ceo: "胡桃",
       isEdit:false,
-	  isAdd:false,
+	    isAdd:false,
       styleObject: [],
       profile: "阿帕茶特供店是一家以茶叶为主的公司，主要经营茶叶的种植、加工、销售等业务。",
       tableData:[
@@ -191,16 +193,37 @@ export default {
     };
   },
   methods:{
-    focused(target) {
+    focused(target){
         this.styleObject = new Array(3);
         this.styleObject.splice(target, 1, "focusStyle");
       },
       unfocused() {
         this.styleObject = new Array(3);
-      },
+    },
     handleEdit(wid){
-		this.isEdit = true;
+		    this.isEdit = true;
       	console.log(wid);
+    },
+    baseInfoSearch(){
+        this.$http.get('/teams/info',{timeout:3000})
+        .then(res=>{
+          if(res.data.code==1){
+            this.team = res.data.data.team;
+            this.emps = res.data.data.emps;
+          }
+          else{
+            this.$message({
+              type:'error',
+              message:res.data.msg
+            })
+          }
+        })
+        .catch(()=>{
+          this.$message({
+            type:'error',
+            message:'服务器访问错误'
+          })
+        })
     }
   }
 };
@@ -327,5 +350,9 @@ export default {
 	width: 905px;
 	height: 755px;
 	background-color: white;
+}
+/deep/#eprofile{
+    padding-left: 3px;
+    font-family: Arial;
 }
 </style>

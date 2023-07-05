@@ -5,9 +5,11 @@ import 'element-ui/lib/theme-chalk/index.css';
 import VueRouter from 'vue-router'
 import router from './router/index.js'
 import * as echarts from 'echarts'
+import axios from 'axios'
 Vue.prototype.$echarts = echarts
+axios.defaults.baseURL ='http://10.236.119.45:80'
+Vue.prototype.$http = axios
 Vue.config.productionTip = false
-Vue.prototype.path = 'http://localhost:8080'
 Vue.use(ElementUI);
 Vue.use(VueRouter)
 new Vue({
