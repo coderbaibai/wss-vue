@@ -17,14 +17,8 @@ export default {
 		}
 	},
 	props:{
-		sources:Object
 	},
 	mounted(){
-		this.canvas = document.getElementById("layoutCanvas")
-		this.ctx = this.canvas.getContext('2d')
-		console.log(this.imgNum)
-		
-		this.loadImages(this.sources,this.initCompoments)
 	},
 	methods:{
 		initCompoments(){

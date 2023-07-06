@@ -79,6 +79,9 @@ export function Rect(id,image,point,width,height,rotate){
         else if(this.isConflict)
             this.drawStrokeConflict(ctx)
     }
+    this.copy = function(){
+        return new Rect(null,this.image,{x:this.anchor.x-width/2,y:this.anchor.y-height/2},this.width,this.height,this.rotate)
+    }
     this.drawStroke = function(ctx){
         ctx.save()
         ctx.translate(this.anchor.x,this.anchor.y)
@@ -122,6 +125,14 @@ export function Rect(id,image,point,width,height,rotate){
         ctx.save()
         ctx.translate(this.anchor.x,this.anchor.y)
         ctx.rotate(this.rotate)
+        ctx.drawImage(this.image,-this.width/2,-this.height/2,this.width,this.height)
+        ctx.restore()
+    }
+    this.drawAlphaImg = function(ctx){
+        ctx.save()
+        ctx.translate(this.anchor.x,this.anchor.y)
+        ctx.rotate(this.rotate)
+        ctx.globalAlpha = 0.5
         ctx.drawImage(this.image,-this.width/2,-this.height/2,this.width,this.height)
         ctx.restore()
     }

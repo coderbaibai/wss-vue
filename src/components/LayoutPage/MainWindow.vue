@@ -66,20 +66,20 @@ export default {
                 }
             }
         }
-        // this.$http.get('/layout/area').then(res => {
-        //     if(res.data.code === 1){
+        this.$http.get('/layout/area').then(res => {
+            if(res.data.code === 1){
                 this.areas = res.data.data.areas
                 this.areas.forEach((item)=>{
                     if(!this.buildings.includes(item.buildingName))
                         this.buildings.push(item.buildingName)
                 })
-        //     }
-        //     else{
-        //         this.$message.error(res.data.msg)
-        //     }
-        // }).catch(()=>{
-        //     this.$message.error("服务器访问错误")
-        // });
+            }
+            else{
+                this.$message.error(res.data.msg)
+            }
+        }).catch(()=>{
+            this.$message.error("服务器访问错误")
+        });
     },
     watch:{
         selectBuilding(value){
@@ -230,5 +230,8 @@ export default {
     width: 888px;
     border: 1px solid #C8C9CD;
     border-radius: 4px;
+}
+ul>.el-select-dropdown__item{
+    padding-left: 12px;
 }
 </style>
