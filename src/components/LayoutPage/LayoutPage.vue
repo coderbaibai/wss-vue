@@ -33,6 +33,7 @@
                 <el-button @click="isChange = false">取消</el-button>
             </div>
         </el-dialog>
+
         <el-dialog title="区域修改" :visible.sync="isAdd">
             <el-table :data="gridData">
                 <el-table-column property="date" label="日期" width="150"></el-table-column>
