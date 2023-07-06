@@ -72,10 +72,70 @@ export default {
                 areaNameNew: '',
                 width: 0,
                 height: 0
-            }
+            },
+            components: [],
         }
     },
+    created(){
+        this.getLayoutInfo()
+    },
     methods: {
+        getLayoutInfo(buildingName,floorName,areaName){
+            if(buildingName&&floorName&&areaName){
+                this.$http.get('/layout/info',{timeout:3000,params:{
+                    buildingName:buildingName,
+                    floorName:floorName,
+                    areaName:areaName
+                }})
+                .then(res=>{
+                    if(res.code==1){
+                        this.area.buildingNameOld = res.data.data.area.buildingName
+                        this.area.floorNameOld = res.data.data.area.floorName
+                        this.area.areaNameOld = res.data.data.area.areaName
+                        this.area.width = res.data.data.area.width
+                        this.area.height = res.data.data.area.height
+                        this.components = res.data.data.components
+                    }
+                    else{
+                        this.$message({
+                            message:res.data.msg,
+                            type:"error"
+                        })
+                    }
+                })
+                .catch(()=>{
+                    this.$message({
+                        message:"服务器访问错误",
+                        type:"error"
+                    })
+                })
+            }
+            else{
+                this.$http.get('/layout/info',{timeout:3000})
+                .then(res=>{
+                    if(res.code==1){
+                        this.area.buildingNameOld = res.data.data.area.buildingName
+                        this.area.floorNameOld = res.data.data.area.floorName
+                        this.area.areaNameOld = res.data.data.area.areaName
+                        this.area.width = res.data.data.area.width
+                        this.area.height = res.data.data.area.height
+                        this.components = res.data.data.components
+                    }
+                    else{
+                        this.$message({
+                            message:res.data.msg,
+                            type:"error"
+                        })
+                    }
+                })
+                .catch(()=>{
+                    this.$message({
+                        message:"服务器访问错误",
+                        type:"error"
+                    })
+                })
+            }
+        },
         addPage() {
             this.isAdd = true
         },
