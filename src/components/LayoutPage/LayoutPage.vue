@@ -106,7 +106,6 @@ export default {
                 areaName: '',
                 width: '',
                 hight: ''
-            }
             },
             components: [],
         }
