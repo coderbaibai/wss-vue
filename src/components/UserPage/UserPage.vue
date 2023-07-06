@@ -6,8 +6,12 @@
         <div id="InfoBoxDiv"><InfoBoxVue :userInfo="userInfo" @save="saveInfoBox" ref="infoBox"/></div>
         <div id="ReservationBoxDiv"><ReservationBoxVue :reservations="reservations" @changeStatus="changeStatus" @renewReservation="renewReservation" @addTeam="searchTeam" @logout="logout"/></div>
     </div>
-    <el-dialog title="加入团队" :visible.sync="isAdd">
-		<el-table :data="teams">
+    <el-dialog :visible.sync="isAdd" id="teamDialog" title="我的团队">   
+        <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+        <el-menu-item index="1">加入团队</el-menu-item>
+        <el-menu-item index="2">创建团队</el-menu-item>
+        </el-menu>
+		<el-table v-if="activeIndex=='1'" :data="teams">
 			<el-table-column align="center" property="name" label="团队名" width="250">
                 <template slot-scope="scope">
 				    <img :src="scope.row.url" style="width:30px;height:30px;border-radius:15px;position:relative;top:3px">
@@ -22,6 +26,15 @@
                 </template>
             </el-table-column>
 		</el-table>
+        <el-form v-if="activeIndex=='2'">
+            <el-form-item label="团队名">
+                <el-input v-model="newTeamName"></el-input>
+            </el-form-item>
+        </el-form>
+        <div v-if="activeIndex=='2'" slot="footer">
+            <el-button @click="createTeam" type="primary">创建</el-button>
+            <el-button @click="cancelCreate">取消</el-button>
+        </div>
 	</el-dialog>
     <el-dialog title="续约" :visible.sync="isRenew" width="800px">
         <el-form>
@@ -51,7 +64,7 @@
         </el-form-item>
         </el-form>
         <div slot="footer">
-                <el-button @click="renewPut" type="primary">修改</el-button>
+                <el-button @click="renewPut" type="primary">保存</el-button>
                 <el-button @click="isRenew = false">取消</el-button>
         </div>
 	</el-dialog>
@@ -71,39 +84,106 @@ export default {
             endTime:'18:30',
             teams:null,
             currentEndTime:'',
-            userInfo:{
-                username:'1273698633',
-                name:'爱学习的小白',
-                profile:'',
-                wid:'',
-                gender:'',
-                post:'',
-                team:''
-            },
-            reservations:[{
-                date:"2022-07-08",
-                startTime:"15:30",
-                endTime:"16:30",
-                workstation:"明学楼2F301",
-                status:"已履约"
-            },
-            {    
-                date:"2022-07-08",
-                startTime:"15:30",
-                endTime:"18:30",
-                workstation:"明学楼2F301",
-                status:"已履约"
-            },
-            {
-                date:"2022-07-08",
-                startTime:"15:30",
-                endTime:"18:30",
-                workstation:"明学楼2F301",
-                status:"已履约"
-            }]
+            userInfo:null,
+            reservations:[],
+            activeIndex:'1',
+            newTeamName:''
         }
     },
     mounted(){
+        // var res = {
+        //     data:{
+        //         data:{
+        //             userInfo:{
+        //                 username:'1273698633',
+        //                 name:'爱学习的小白',
+        //                 profile:'往生堂第77代堂主',
+        //                 wid:'51234985',
+        //                 gender:'男',
+        //                 post:'前端工程师',
+        //                 team:'往生堂'
+        //             },
+        //             reservations:[{
+        //                 date:"2022-07-08",
+        //                 startTime:"15:30",
+        //                 endTime:"16:30",
+        //                 workstation:"明学楼2F301",
+        //                 status:"已履约"
+        //             },
+        //             {    
+        //                 date:"2022-07-08",
+        //                 startTime:"15:30",
+        //                 endTime:"18:30",
+        //                 workstation:"明学楼2F301",
+        //                 status:"已履约"
+        //             },
+        //             {
+        //                 date:"2022-07-08",
+        //                 startTime:"15:30",
+        //                 endTime:"18:30",
+        //                 workstation:"明学楼2F301",
+        //                 status:"已履约"
+        //             },
+        //             {    
+        //                 date:"2022-07-08",
+        //                 startTime:"15:30",
+        //                 endTime:"18:30",
+        //                 workstation:"明学楼2F301",
+        //                 status:"已履约"
+        //             },
+        //             {    
+        //                 date:"2022-07-08",
+        //                 startTime:"15:30",
+        //                 endTime:"18:30",
+        //                 workstation:"明学楼2F301",
+        //                 status:"已履约"
+        //             },
+        //             {    
+        //                 date:"2022-07-08",
+        //                 startTime:"15:30",
+        //                 endTime:"18:30",
+        //                 workstation:"明学楼2F301",
+        //                 status:"已履约"
+        //             },
+        //             {    
+        //                 date:"2022-07-08",
+        //                 startTime:"15:30",
+        //                 endTime:"18:30",
+        //                 workstation:"明学楼2F301",
+        //                 status:"已履约"
+        //             },
+        //             {
+        //                 date:"2022-07-08",
+        //                 startTime:"15:30",
+        //                 endTime:"18:30",
+        //                 workstation:"明学楼2F301",
+        //                 status:"已履约"
+        //             },
+        //             {    
+        //                 date:"2022-07-08",
+        //                 startTime:"15:30",
+        //                 endTime:"18:30",
+        //                 workstation:"明学楼2F301",
+        //                 status:"已履约"
+        //             },
+        //             {    
+        //                 date:"2022-07-08",
+        //                 startTime:"15:30",
+        //                 endTime:"18:30",
+        //                 workstation:"明学楼2F301",
+        //                 status:"已履约"
+        //             },
+        //             {    
+        //                 date:"2022-07-08",
+        //                 startTime:"15:30",
+        //                 endTime:"18:30",
+        //                 workstation:"明学楼2F301",
+        //                 status:"已履约"
+        //             }
+        //             ]
+        //         }
+        //     }
+        // }
         this.$http.get('/users/info',{timeout:3000})
         .then(res=>{
             if(res.code==1){
@@ -132,6 +212,38 @@ export default {
             this.reservations.forEach(item=>{
                 item.druation = item.date+' '+item.startTime+'-'+item.endTime
             })
+        },
+        handleSelect(key){
+            this.activeIndex = key
+        },
+        createTeam(){
+            this.$http.post('/users/create',{name:this.newTeamName},{timeout:1000})
+            .then((res)=>{
+                if(res.data.code==1){
+                    this.$message({
+                        message:"创建成功,重新登录以进行团队管理",
+                        type:"success"
+                    })
+                    this.isAdd = false
+                    this.newTeamName = ''
+                }
+                else{
+                    this.$message({
+                        message:res.data.msg,
+                        type:"error"
+                    })
+                }
+            })
+            .catch(()=>{
+                this.$message({
+                    message:"服务器访问错误",
+                    type:"error"
+                })
+            })
+        },
+        cancelCreate(){
+            this.newTeamName = ''
+            this.isAdd = false
         },
         saveInfoBox(username,gender,profile){
             this.$http.put('/users/info',{username:username,gender:gender,profile:profile},{timeout:1000})
@@ -229,24 +341,40 @@ export default {
         },
         searchTeam(){
             this.isAdd = true
-            this.$http.get('/users/invites',{timeout:1000})
-            .then(e=>{
-                if(e.data.code==1){
+            var e={
+                data:{
+                    data:{
+                        teams:[{
+                            image:require("@/assets/cat.jpg"),
+                            name:"团队1",
+                            id:1,
+                        },
+                        {
+                            image:require("@/assets/cat.jpg"),
+                            name:"团队2",
+                            id:2,
+                        }]
+                    }
+                }
+            }
+            // this.$http.get('/users/invites',{timeout:1000})
+            // .then(e=>{
+            //     if(e.data.code==1){
                     this.teams = e.data.data.teams
-                }
-                else{
-                    this.$message({
-                        message:e.data.msg,
-                        type: 'error'
-                    });
-                }
-            })
-            .catch(()=>{
-                this.$message({
-                    message: '服务器访问错误',
-                    type: 'error'
-                });
-            })
+            //     }
+            //     else{
+            //         this.$message({
+            //             message:e.data.msg,
+            //             type: 'error'
+            //         });
+            //     }
+            // })
+            // .catch(()=>{
+            //     this.$message({
+            //         message: '服务器访问错误',
+            //         type: 'error'
+            //     });
+            // })
         },
         joinTeam(tid){
             this.$http.post('/users/invites',{id:tid},{timeout:1000})
@@ -276,7 +404,7 @@ export default {
             .then(e=>{
                 if(e.data.code==1){
                     this.$message({
-                        message:'拒绝成功',
+                        message:'已拒绝',
                         type: 'success'
                     });
                 }
@@ -304,7 +432,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 #UserPage{
     position: absolute;
     top: 25px;
@@ -334,5 +462,8 @@ export default {
     position:absolute;
     left:359px;
     top: 241px;
+}
+/deep/#teamDialog .el-dialog__body{
+    padding-top: 10px;
 }
 </style>

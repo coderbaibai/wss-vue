@@ -152,7 +152,7 @@ export default {
 	  })
 	},
 	leave(){
-		this.$http.put('/users/leave',{timeout:1000})
+		this.$http.put('/users/leave',null,{timeout:1000})
 		.then(res=>{
 			if(res.data.code==1){
 				this.$message({
@@ -277,5 +277,18 @@ export default {
   left: 20px;
   width: 833px;
   height: 470px;
+}
+/deep/.el-table__body-wrapper::-webkit-scrollbar{
+  width: 4px;
+}
+/deep/.el-table__body-wrapper::-webkit-scrollbar-thumb{
+  border-radius: 2px;
+  height: 50px;
+  background: rgba(0, 0, 0,0.4);
+}
+/deep/.el-table__body-wrapper::-webkit-scrollbar-track{
+  box-shadow: inset 0 0 5px #eee;
+  border-radius: 2px;
+  background: #eee;
 }
 </style>

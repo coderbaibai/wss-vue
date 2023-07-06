@@ -3,7 +3,7 @@
     <div :class="{'focusHighlight':isFocus}" id="info">资料</div>
     <div class="itemShow" :class="styleObject[0]" id="username">用户名</div>
     <div id="saveButton" v-if="isChange"><el-button type="primary" size="small" @click="saveAllChange">保存</el-button></div>
-    <div id="canvcelButton" v-if="isChange"><el-button size="small" @click="cancelAllChange" >取消</el-button></div>
+    <div id="cancelButton" v-if="isChange"><el-button size="small" @click="cancelAllChange" >取消</el-button></div>
     <div class="itemDiv" id="irealName">
       <el-input
         v-model.trim="username"
@@ -136,7 +136,7 @@ export default {
   left: 185px;
   top: 550px;
 }
-#canvcelButton{
+#cancelButton{
   position: absolute;
   left: 250px;
   top: 550px;
