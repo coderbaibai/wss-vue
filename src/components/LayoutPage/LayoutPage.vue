@@ -33,20 +33,46 @@
                 <el-button @click="isChange = false">取消</el-button>
             </div>
         </el-dialog>
-        <el-dialog title="区域修改" :visible.sync="isAdd">
+
+        <el-dialog title="增添区域" :visible.sync="isAdd">
+            <!-- <el-table :data="gridData">
+                <el-table-column property="date" label="日期" width="150"></el-table-column>
+                <el-table-column property="name" label="姓名" width="200"></el-table-column>
+                <el-table-column property="address" label="地址"></el-table-column>
+            </el-table> -->
+            <el-form label-position="right" :model="new_area" label-width="60px" :inline="true">
+                <el-row :gutter="10">
+                    <el-form-item label="办公楼">
+                        <el-input v-model="new_area.buildingName"></el-input>
+                    </el-form-item>
+                    <el-form-item label="楼层数">
+                        <el-input v-model="new_area.floorName"></el-input>
+                    </el-form-item>
+                    <el-form-item label="区域号">
+                        <el-input v-model="new_area.areaName"></el-input>
+                    </el-form-item>
+                </el-row>
+                <el-row :gutter="10">
+                    <el-form-item label="区域宽">
+                        <el-input v-model="new_area.width" placeholder="0"></el-input>
+                    </el-form-item>
+                    <el-form-item label="区域高">
+                        <el-input v-model="new_area.height" placeholder="0"></el-input>
+                    </el-form-item>
+                </el-row>
+            </el-form>
+            <div slot="footer">
+                <el-button type="primary">修改</el-button>
+                <el-button @click="isChange = false">取消</el-button>
+            </div>
+        </el-dialog>
+        <!-- <el-dialog title="增添区域" :visible.sync="isDelete">
             <el-table :data="gridData">
                 <el-table-column property="date" label="日期" width="150"></el-table-column>
                 <el-table-column property="name" label="姓名" width="200"></el-table-column>
                 <el-table-column property="address" label="地址"></el-table-column>
             </el-table>
-        </el-dialog>
-        <el-dialog title="区域修改" :visible.sync="isDelete">
-            <el-table :data="gridData">
-                <el-table-column property="date" label="日期" width="150"></el-table-column>
-                <el-table-column property="name" label="姓名" width="200"></el-table-column>
-                <el-table-column property="address" label="地址"></el-table-column>
-            </el-table>
-        </el-dialog>
+        </el-dialog> -->
     </div>
 </template>
 
@@ -72,6 +98,15 @@ export default {
                 areaNameNew: '',
                 width: 0,
                 height: 0
+            },
+            // 添加区域
+            new_area: {
+                buildingName: '',
+                floorName: '',
+                areaName: '',
+                width: '',
+                hight: ''
+            }
             },
             components: [],
         }
