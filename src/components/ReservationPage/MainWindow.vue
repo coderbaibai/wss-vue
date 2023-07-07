@@ -30,8 +30,10 @@
                 <span id="refreshInfo">刷新</span>
                 <el-button id="refresh" type="primary"></el-button>
             </div>
+
             <!-- 测试用预约按钮 -->
             <el-button size="small" round @click="reserve">预约</el-button>
+
         </div>
         <div id="canvasBox">
         </div>
@@ -40,11 +42,11 @@
 
 <script>
 export default {
-    methods:{
+    methods: {
         reserve() {
-            this.$emit('reserveWorkPlace');
+            this.$emit("reserveWorkPlace");
         },
-    }
+    },
 }
 </script>
 <style lang="scss" scoped>

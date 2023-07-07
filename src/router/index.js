@@ -12,28 +12,28 @@ export default new VueRouter({
         },
         {
             path: '/team',
-            component:TeamPage
+            component: TeamPage
         },
         {
             path: '/user',
-            component:UserVue
+            component: UserVue
         },
         {
             path: '/layout',
-            component:LayoutPage
+            component: LayoutPage
 
         },
         {
             path: '/reservation',
-            component:ReservationVue
+            component: ReservationVue
         },
         {
             path: '/manage',
-            component:ManageVue
+            component: ManageVue
         },
         {
             path: '/statics',
-            component:StaticsPage
-        }
+            component: StaticsPage
+        },
     ]
 })
