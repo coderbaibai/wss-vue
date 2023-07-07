@@ -3,7 +3,7 @@
     <div id="UserPage">
         <div id="UserAvatarDiv"><UserAvatarVue/></div>
         <div id="UsernameTextDiv"><UsernameTextVue :name="userInfo.name" @changeName="saveName" ref="name"/></div>
-        <div id="InfoBoxDiv"><InfoBoxVue :userInfo="userInfo" @save="saveInfoBox" ref="infoBox"/></div>
+        <div id="InfoBoxDiv"><InfoBoxVue v-if="someShow" :userInfo="userInfo" @save="saveInfoBox" ref="infoBox"/></div>
         <div id="ReservationBoxDiv"><ReservationBoxVue :reservations="reservations" @changeStatus="changeStatus" @renewReservation="renewReservation" @addTeam="searchTeam" @logout="logout"/></div>
     </div>
     <el-dialog :visible.sync="isAdd" id="teamDialog" title="我的团队">   
@@ -14,7 +14,7 @@
 		<el-table v-if="activeIndex=='1'" :data="teams">
 			<el-table-column align="center" property="name" label="团队名" width="250">
                 <template slot-scope="scope">
-				    <img :src="scope.row.url" style="width:30px;height:30px;border-radius:15px;position:relative;top:3px">
+				    <img :src="scope.row.image" style="width:30px;height:30px;border-radius:15px;position:relative;top:3px">
 				    <span style="margin-left: 20px;position:relative;top:-7px">{{ scope.row.name }}</span>
 			    </template>
             </el-table-column>
@@ -36,7 +36,7 @@
             <el-button @click="cancelCreate">取消</el-button>
         </div>
 	</el-dialog>
-    <el-dialog title="续约" :visible.sync="isRenew" width="800px">
+    <el-dialog v-if="reservations[0]" title="续约" :visible.sync="isRenew" width="800px">
         <el-form>
 		<el-form-item label="请选择续约时间：">
             <el-col :span="7"> 
@@ -54,7 +54,7 @@
                     placeholder="结束时间"
                     v-model="currentEndTime"
                     :picker-options="{
-                    start: '10:30',
+                    start: currentEndTime,
                     step: '00:30',
                     end: this.endTime
                     }"
@@ -87,7 +87,8 @@ export default {
             userInfo:null,
             reservations:[],
             activeIndex:'1',
-            newTeamName:''
+            newTeamName:'',
+            someShow:true
         }
     },
     mounted(){
@@ -186,8 +187,9 @@ export default {
         // }
         this.$http.get('/users/info',{timeout:3000})
         .then(res=>{
-            if(res.code==1){
+            if(res.data.code==1){
                 this.userInfo = res.data.data.userInfo
+                console.log(this.userInfo)
                 this.reservations = res.data.data.reservations
                 this.initReservations();
                 if(this.reservations[0])
@@ -211,13 +213,28 @@ export default {
         initReservations(){
             this.reservations.forEach(item=>{
                 item.druation = item.date+' '+item.startTime+'-'+item.endTime
+                item.status = this.transStatus(item.status)
             })
+        },
+        transStatus(status){
+            switch(status){
+                case 0:
+                    return '已预约'
+                case 1:
+                    return '进行中'
+                case 2:
+                    return '已完成'
+                case 3:
+                    return '已违约'
+                case 4:
+                    return '已取消'
+            }
         },
         handleSelect(key){
             this.activeIndex = key
         },
         createTeam(){
-            this.$http.post('/users/create',{name:this.newTeamName},{timeout:1000})
+            this.$http.post('/users/team',{name:this.newTeamName},{timeout:1000})
             .then((res)=>{
                 if(res.data.code==1){
                     this.$message({
@@ -252,6 +269,8 @@ export default {
                     this.userInfo.username = username
                     this.userInfo.gender = gender
                     this.userInfo.profile = profile
+                    this.someShow = false
+                    this.someShow = true
                     this.$refs.infoBox.successfulSave()
                     this.$message({
                         message:"保存成功",
@@ -302,7 +321,6 @@ export default {
         },
         renewReservation(endTime){
             this.isRenew = true
-            console.log(endTime);
             this.endTime = endTime
         },
         renewPut(){
@@ -341,40 +359,24 @@ export default {
         },
         searchTeam(){
             this.isAdd = true
-            var e={
-                data:{
-                    data:{
-                        teams:[{
-                            image:require("@/assets/cat.jpg"),
-                            name:"团队1",
-                            id:1,
-                        },
-                        {
-                            image:require("@/assets/cat.jpg"),
-                            name:"团队2",
-                            id:2,
-                        }]
-                    }
+            this.$http.get('/users/invites',{timeout:1000})
+            .then(e=>{
+                if(e.data.code==1){
+                    this.teams = e.data.data
                 }
-            }
-            // this.$http.get('/users/invites',{timeout:1000})
-            // .then(e=>{
-            //     if(e.data.code==1){
-                    this.teams = e.data.data.teams
-            //     }
-            //     else{
-            //         this.$message({
-            //             message:e.data.msg,
-            //             type: 'error'
-            //         });
-            //     }
-            // })
-            // .catch(()=>{
-            //     this.$message({
-            //         message: '服务器访问错误',
-            //         type: 'error'
-            //     });
-            // })
+                else{
+                    this.$message({
+                        message:e.data.msg,
+                        type: 'error'
+                    });
+                }
+            })
+            .catch(()=>{
+                this.$message({
+                    message: '服务器访问错误',
+                    type: 'error'
+                });
+            })
         },
         joinTeam(tid){
             this.$http.post('/users/invites',{id:tid},{timeout:1000})

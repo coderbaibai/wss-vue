@@ -91,9 +91,9 @@ export default {
       this.styleObject = new Array(3);
     },
     diff(){
-      return this.username === this.userInfo.username&&
-        this.gender === this.userInfo.gender&&
-        this.profile === this.userInfo.profile
+      return this.username == this.userInfo.username&&
+        this.gender == this.userInfo.gender&&
+        this.profile == this.userInfo.profile
     },
     saveAllChange(){
       this.$emit('save',this.username,this.gender,this.profile)
@@ -104,7 +104,7 @@ export default {
       this.profile = this.userInfo.profile
     },
     successfulSave(){
-      this.isChange = this.diff()
+      this.isChange = !this.diff()
     }
   },
   watch:{

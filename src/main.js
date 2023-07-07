@@ -7,7 +7,8 @@ import router from './router/index.js'
 import * as echarts from 'echarts'
 import axios from 'axios'
 Vue.prototype.$echarts = echarts
-axios.defaults.baseURL ='http://10.236.119.45:80'
+// axios.defaults.baseURL = 'http://localhost'
+// axios.defaults.withCredentials= true
 Vue.prototype.$http = axios
 Vue.config.productionTip = false
 Vue.use(ElementUI);

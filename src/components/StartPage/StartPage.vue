@@ -21,36 +21,36 @@ export default {
             this.isLogin = !this.isLogin
         },
         login(username,password){
-            this.$emit('login',1)
-            // this.$http.post("/start/login",{username:username,password:password},{timeout:1000})
-            // .then(res=>{
-            // if(res.data.code==1){
-            //     if(res.data.data.type)
-            //         this.$emit('login',1)
-            //     else
-            //         this.$emit('login',2)
-            // }
-            // else{
-            //     this.$refs.login.changeErrorAndShow(res.data.msg)
-            // }
-            // })
-            // .catch(()=>{
-            //     this.$refs.login.changeErrorAndShow("服务器访问错误")
-            // })
+            // this.$emit('login',1)
+            this.$http.post("/start/login",{username:username,password:password},{timeout:1000})
+            .then(res=>{
+            if(res.data.code==1){
+                if(res.data.data.type)
+                    this.$emit('login',1)
+                else
+                    this.$emit('login',2)
+            }
+            else{
+                this.$refs.login.changeErrorAndShow(res.data.msg)
+            }
+            })
+            .catch(()=>{
+                this.$refs.login.changeErrorAndShow("服务器访问错误")
+            })
         },
         register(username,password){
-            // this.$http.post("/start/register",{username:username,password:password},{timeout:1000})
-            // .then(res=>{
-            //     if(res.data.code==1){
-            //         this.$emit('login')
-            //     }
-            //     else{
-            //         this.$refs.register.changeErrorAndShow(res.data.msg)
-            //     }
-            // })
-            // .catch(()=>{
-            //     this.$refs.register.changeErrorAndShow("服务器访问错误")
-            // })
+            this.$http.post("/start/register",{username:username,password:password},{timeout:1000})
+            .then(res=>{
+                if(res.data.code==1){
+                    this.$emit('login')
+                }
+                else{
+                    this.$refs.register.changeErrorAndShow(res.data.msg)
+                }
+            })
+            .catch(()=>{
+                this.$refs.register.changeErrorAndShow("服务器访问错误")
+            })
         }
     },
     components:{

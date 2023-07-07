@@ -3,19 +3,19 @@
         <div id="floorItems">
             <!-- 办公楼下拉框 -->
             <span class="floorInfo">办公楼:</span>
-            <div style="width:93px" class="selectItem"><el-select clearable size="mini" id="ffs" v-model="buildingOption"
-                    @change="updateFloorOption"> <el-option v-for="option in BuildingOptions" :key="option.value"
-                        :label="option.label" :value="option.value"></el-option></el-select></div>
+            <div style="width:93px" class="selectItem"><el-select clearable size="mini" id="ffs" v-model="selectBuilding"
+                    > <el-option v-for="building in buildings" :key="building"
+                        :label="building" :value="building"></el-option></el-select></div>
             <!-- 楼层下拉框 -->
             <span class="floorInfo">楼层:</span>
-            <div class="selectItem"><el-select clearable id="sfs" size="mini" v-model="floorOption"
-                    @change="updateRoomOption"><el-option v-for="option in FloorOptions" :key="option.value"
-                        :label="option.label" :value="option.value"></el-option></el-select></div>
+            <div class="selectItem"><el-select :disabled="floorDisabled" clearable id="sfs" size="mini" v-model="selectFloor"
+                    ><el-option v-for="floor in floors" :key="floor"
+                        :label="floor" :value="floor"></el-option></el-select></div>
             <!-- 房间下拉框 -->
             <span class="floorInfo">房间号:</span>
-            <div class="selectItem"><el-select clearable id="tfs" size="mini" v-model="roomOption">
-                    <el-option v-for="option in RoomOptions" :key="option.value" :label="option.label"
-                        :value="option.value"></el-option></el-select></div>
+            <div class="selectItem"><el-select :disabled="areaDisabled" clearable id="tfs" size="mini" v-model="selectRoom">
+                    <el-option v-for="room in rooms" :key="room" :label="room"
+                        :value="room"></el-option></el-select></div>
         </div>
         <div id="refreshDiv">
             <span class="innerSpan">保存</span>
@@ -44,20 +44,69 @@
 export default {
     data() {
         return {
-            buildingOption: '',
-            floorOption: '',
-            roomOption: '',
-            BuildingOptions: [],
-            FloorOptions: [],
-            RoomOptions: [],
+            areas:[],
+            buildings:[],
+            floors:[],
+            rooms:[],
+            selectBuilding:'',
+            selectFloor:'',
+            selectRoom:'',
+            floorDisabled :true,
+            areaDisabled :true
         }
     },
     created() {
-        // this.$http.get('/manage/infos').then(response => {
-        //     this.BuildingOptions = response.data.areas.map(area => area.buildingName);
-        // }).catch(error => {
-        //     console.log(error);
+        var res ={
+            data:{
+                data:{
+                    areas:[{buildingName:'明学楼',floorName:'5F',areaName:'501'},
+                    {buildingName:'明学楼',floorName:'3F',areaName:'502'},
+                    {buildingName:'明学楼',floorName:'4F',areaName:'503'},
+                    {buildingName:'功学楼',floorName:'6F',areaName:'504'}]
+                }
+            }
+        }
+        // this.$http.get('/layout/area').then(res => {
+        //     if(res.data.code === 1){
+                this.areas = res.data.data.areas
+                this.areas.forEach((item)=>{
+                    if(!this.buildings.includes(item.buildingName))
+                        this.buildings.push(item.buildingName)
+                })
+        //     }
+        //     else{
+        //         this.$message.error(res.data.msg)
+        //     }
+        // }).catch(()=>{
+        //     this.$message.error("服务器访问错误")
         // });
+    },
+    watch:{
+        selectBuilding(value){
+            if(value==''){
+                this.floorDisabled = true
+                this.selectFloor = ''
+            }
+            else
+                this.floorDisabled = false
+            this.floors = []
+            this.areas.forEach((item)=>{
+                if(this.selectBuilding==item.buildingName&&!this.floors.includes(item.floorName))
+                    this.floors.push(item.floorName)
+            })
+        },
+        selectFloor(value){
+            if(value==''){
+                this.areaDisabled = true
+            }
+            else
+                this.areaDisabled = false
+            this.rooms = []
+            this.areas.forEach((item)=>{
+                if(this.selectBuilding==item.buildingName&&this.selectRoom==item.selectRoom&&!this.rooms.includes(item.areaName))
+                    this.rooms.push(item.areaName)
+            })
+        }
     },
     methods: {
         addPage() {
@@ -68,18 +117,6 @@ export default {
         },
         deletePage() {
             this.$emit('deletePage');
-        },
-        updateFloorOption() {
-            // const area = this.$data.BuildingOptions.find(area => area.buildingName === this.buildingOption);
-            // this.FloorOptions = area.floors.map(floor => floor.floorName);
-            // this.floorOption = '';
-            // this.roomOption = '';
-        },
-        updateRoomOption() {
-            // const area = this.$data.BuildingOptions.find(area => area.buildingName === this.buildingOption);
-            // const floor = area.floors.find(floor => floor.floorName === this.floorOption);
-            // this.RoomOptions = floor.rooms.map(room => room.name);
-            // this.roomOption = '';
         }
     }
 }
