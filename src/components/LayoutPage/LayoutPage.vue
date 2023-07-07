@@ -35,11 +35,6 @@
         </el-dialog>
 
         <el-dialog title="增添区域" :visible.sync="isAdd">
-            <!-- <el-table :data="gridData">
-                <el-table-column property="date" label="日期" width="150"></el-table-column>
-                <el-table-column property="name" label="姓名" width="200"></el-table-column>
-                <el-table-column property="address" label="地址"></el-table-column>
-            </el-table> -->
             <el-form label-position="right" :model="new_area" label-width="60px" :inline="true">
                 <el-row :gutter="10">
                     <el-form-item label="办公楼">
@@ -66,13 +61,6 @@
                 <el-button @click="isChange = false">取消</el-button>
             </div>
         </el-dialog>
-        <!-- <el-dialog title="增添区域" :visible.sync="isDelete">
-            <el-table :data="gridData">
-                <el-table-column property="date" label="日期" width="150"></el-table-column>
-                <el-table-column property="name" label="姓名" width="200"></el-table-column>
-                <el-table-column property="address" label="地址"></el-table-column>
-            </el-table>
-        </el-dialog> -->
     </div>
 </template>
 
@@ -82,7 +70,7 @@ import LayoutListVue from './LayoutList.vue'
 export default {
     components: {
         MainWindowVue,
-        LayoutListVue
+        LayoutListVue,
     },
     data() {
         return {

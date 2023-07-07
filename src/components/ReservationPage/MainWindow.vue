@@ -40,11 +40,12 @@
 
 <script>
 export default {
-    methods:{
+    methods: {
         reserve() {
-            this.$emit('reserveWorkPlace');
+            this.$emit("reserveWorkPlace");
         },
-    }
+    },
+    // components: { AddComponent, AddComponent }
 }
 </script>
 <style lang="scss" scoped>

@@ -5,6 +5,8 @@ import ManageVue from '../components/ManagePage/ManagePage.vue'
 import StaticsPage from '../components/StaticsPage/StaticsPage.vue'
 import LayoutPage from '../components/LayoutPage/LayoutPage.vue'
 import TeamPage from '../components/TeamPage/TeamPage.vue'
+import AddComponent from '../components/ReservationPage/AddComponent.vue'
+import AddComponentLibrary from '../components/ReservationPage/AddComponentLibrary.vue'
 export default new VueRouter({
     routes: [
         {
@@ -12,28 +14,36 @@ export default new VueRouter({
         },
         {
             path: '/team',
-            component:TeamPage
+            component: TeamPage
         },
         {
             path: '/user',
-            component:UserVue
+            component: UserVue
         },
         {
             path: '/layout',
-            component:LayoutPage
+            component: LayoutPage
 
         },
         {
             path: '/reservation',
-            component:ReservationVue
+            component: ReservationVue
         },
         {
             path: '/manage',
-            component:ManageVue
+            component: ManageVue
         },
         {
             path: '/statics',
-            component:StaticsPage
+            component: StaticsPage
+        },
+        {
+            path: '/component',
+            component: AddComponent
+        },
+        {
+            path:'/library',
+            component: AddComponentLibrary
         }
     ]
 })
