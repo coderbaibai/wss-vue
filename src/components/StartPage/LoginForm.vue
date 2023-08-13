@@ -4,7 +4,7 @@
         <el-input v-model.trim="username" id="usernameInput" placeholder="Username" clearable></el-input>
     </div>
     <div id="password">
-        <el-input v-model.trim="password" id="passwordInput" placeholder="password" clearable></el-input>
+        <el-input show-password v-model.trim="password" id="passwordInput" placeholder="password" clearable></el-input>
     </div>
     <div id="login" @click="loginVerify">
         <el-button id="loginButton" type="primary">Login Now</el-button>
@@ -58,14 +58,14 @@ export default {
                 this.errMessage = '用户名或密码不应为空'
                 this.showError()
             }
-            else if(!userNameReg.test(this.username)){
-                this.errMessage = '用户名应为2-15位英文或数字'
-                this.showError()
-            }
-            else if(!passwordReg.test(this.password)){
-                this.errMessage = '密码应为2-15位英文或数字'
-                this.showError()
-            }
+            // else if(!userNameReg.test(this.username)){
+            //     this.errMessage = '用户名应为2-15位英文或数字'
+            //     this.showError()
+            // }
+            // else if(!passwordReg.test(this.password)){
+            //     this.errMessage = '密码应为2-15位英文或数字'
+            //     this.showError()
+            // }
             else{
                 this.hideError()
                 this.$emit('login',this.username,this.password)

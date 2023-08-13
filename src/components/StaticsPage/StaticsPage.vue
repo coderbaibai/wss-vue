@@ -1,4 +1,5 @@
 <template>
+<div>
   <div id="staticsPage">
     <div id="headerItems">
       <div class="headerItem">
@@ -44,10 +45,13 @@
         <div class="innerExt">总预约数量</div>
       </div>
     </div>
-    <div id="leftItem"></div>
-    <div id="rightItem"></div>
+    <div id="middle">
+      <div id="leftItem"></div>
+      <div id="rightItem"></div>
+    </div>
     <div id="bottomItem"></div>
   </div>
+</div>
 </template>
 
 <script>
@@ -127,7 +131,7 @@ export default {
       if(res.data.code==1){
         this.ratesObject = res.data.data.ratesObject;
         for(let i =0;i<this.ratesObject.length;i++){
-          this.ratesObject[i].name = this.ns[i] = this.ratesObject[i].area.buildingName+this.ratesObject[i].area.floorName+this.ratesObject[i].area.areaName;
+          this.ratesObject[i].name = this.ns[i] = this.ratesObject[i].buildingName+this.ratesObject[i].floorName+this.ratesObject[i].areaName;
           this.ratesObject[i].type = 'line';
           this.ratesObject[i].data = this.ratesObject[i].rates
         }
@@ -289,12 +293,10 @@ export default {
   overflow-y: scroll;
   overflow-x: hidden;
   /* background-color: white; */
-  position: absolute;
-  left: 261px;
-  top: 20px;
-  width: 1228px;
+  width: 100%;
   height: 835px;
   border-radius: 5px;
+  position: relative;
 }
 #staticsPage::-webkit-scrollbar {
   width: 0px;
@@ -302,18 +304,22 @@ export default {
 #headerItems {
   position: absolute;
   top: 10px;
-  width: 1238px;
+  width: 96%;
   height: 160px;
+  display: flex;
+  justify-content: space-between;
   /* background-color: white; */
 }
 .headerItem {
   display: inline-block;
   position: relative;
-  width: 200px;
+  min-width: 200px;
+  max-width: 280px;
+  width: 100%;
   height: 160px;
   background-color: white;
   border-radius: 5px;
-  margin-left: 5px;
+  margin-left: 10px;
 }
 .innerItem {
   display: inline-block;
@@ -352,29 +358,39 @@ export default {
   font-size: 15px;
   color: rgb(102, 102, 102);
 }
-#leftItem {
+#middle{
   position: absolute;
-  background-color: #fff;
-  height: 400px;
-  width: 400px;
   top: 180px;
+  display: flex;
+  height: 400px;
+  width: 96%;
+}
+#leftItem {
+  background-color: #fff;
+  height: 100%;
+  width: 100%;
+  min-width: 400px;
+  max-width: 500px;
   border-radius: 5px;
+  margin-left: 10px;
 }
 #rightItem {
-  position: absolute;
+  margin-left: 10px;
   background-color: #fff;
-  height: 400px;
-  width: 820px;
-  top: 180px;
-  left: 410px;
+  height: 100%;
+  width: 100%;
+  min-width: 700px;
   border-radius: 5px;
 }
 #bottomItem {
   position: absolute;
   background-color: #fff;
   height: 400px;
-  width: 1230px;
+  width: calc(96% - 10px);
+  width:-webkit-calc(96% - 10px);
+  width:-moz-calc(96% - 10px);
   top: 590px;
+  left: 10px;
   border-radius: 5px;
 }
 </style>

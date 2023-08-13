@@ -9,18 +9,16 @@
 export default {
     data(){
         return{
-            newName:this.name,
+            newName:'',
             isShowEdit :false,
-            inputWidth:this.getLenPx(this.name),
+            inputWidth:0,
             inputAttr:{
                 isreadOnly:true,
                 unselectable:"on"
             }
         }
     },
-    props:{
-        name:String
-    },
+    props:["name"],
     computed:{
         lenPx(){
             return this.getLenPx(this.newName)
@@ -28,6 +26,10 @@ export default {
     },
     watch:{
         newName(value){
+            this.inputWidth = this.getLenPx(value)
+        },
+        name(value){
+            this.newName = value
             this.inputWidth = this.getLenPx(value)
         }
     },

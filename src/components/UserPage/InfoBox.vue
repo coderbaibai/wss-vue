@@ -67,21 +67,19 @@
 export default {
   data() {
     return {
-      username: this.userInfo.username,
-      wid: this.userInfo.wid,
-      gender: this.userInfo.gender,
-      post: this.userInfo.post,
-      team: this.userInfo.team,
-      profile: this.userInfo.profile,
+      username: '',
+      wid: '',
+      gender: '',
+      post: '',
+      team: '',
+      profile: '',
       styleObject: [],
       genders: ["男", "女"],
       isFocus : false,
       isChange :false
     };
   },
-  props:{
-    userInfo:Object
-  },
+  props:["userInfo"],
   methods: {
     focused(target) {
       this.styleObject = new Array(3);
@@ -108,6 +106,17 @@ export default {
     }
   },
   watch:{
+    userInfo:{
+      deep:true,
+      handler(value){
+        this.username= value.username
+        this.wid= value.wid
+        this.gender= value.gender
+        this.post= value.post
+        this.team= value.team
+        this.profile= value.profile
+      }
+    },
     username(){
       this.isChange = !this.diff()
     },
@@ -129,6 +138,7 @@ export default {
   background-color: white;
   position: relative;
   width: 303px;
+  min-width: 303px;
   height: 530px;
 }
 #saveButton{

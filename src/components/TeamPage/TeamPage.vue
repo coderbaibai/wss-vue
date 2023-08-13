@@ -1,7 +1,8 @@
 <template>
+<div>
   <div id="teamPage">
     <div id="header">
-      <img :src="teamInfo.avatarUrl" id="teamAvatar" />
+      <img :src="computedTeamUrl" id="teamAvatar" />
       <h1 style="position: relative; top: 10px">{{teamInfo.name}}</h1>
       <div id="search">
         <el-input
@@ -36,116 +37,125 @@
         ></el-button>
       </div>
     </div>
-    <div id="baseInfo">
-      <div id="saveButton" v-if="isChange">
-        <el-button type="primary" size="small" @click="saveAllChange"
-          >保存</el-button
+    <div id="mainFrame">
+      <div id="baseInfo">
+        <div id="saveButton" v-if="isChange">
+          <el-button type="primary" size="small" @click="saveAllChange"
+            >保存</el-button
+          >
+        </div>
+        <div id="cancelButton" v-if="isChange">
+          <el-button size="small" @click="cancelAllChange">取消</el-button>
+        </div>
+        <div class="infoText" style="top: 35px">图标：</div>
+        <div @mouseenter="mouseIn" @mouseleave="mouseOut" id="avatarBox">
+          <img :src="computedTeamUrl" id="timg"/>
+          <img v-show="isShowEdit" @click="beginEdit" id="changeImg" src="@/assets/change.svg"/>
+        </div>
+        <UploadDialogVue @close="close" @updateUrl="updateUrl" :isEdit="isBeginEdit" target="teams"/>
+        <div class="infoText" style="top: 105px">团队号：</div>
+        <div class="itemDiv" style="top: 130px">
+          <el-input
+            disabled
+            v-model.trim="teamInfo.id"
+            id="tid"
+            size="mini"
+          ></el-input>
+        </div>
+        <div :class="styleObject[0]" class="infoText" style="top: 175px">
+          团队名：
+        </div>
+        <div class="itemDiv" style="top: 200px">
+          <el-input
+            @focus="focused(0)"
+            @blur="unfocused"
+            v-model.trim="nameNew"
+            id="tname"
+            size="mini"
+          ></el-input>
+        </div>
+        <div :class="styleObject[1]" class="infoText" style="top: 245px">
+          办公地：
+        </div>
+        <div class="itemDiv" style="top: 270px">
+          <el-input
+            @focus="focused(1)"
+            @blur="unfocused"
+            v-model.trim="placeNew"
+            id="place"
+            size="mini"
+          ></el-input>
+        </div>
+        <div class="infoText" style="top: 315px">CEO：</div>
+        <div class="itemDiv" style="top: 340px">
+          <el-input disabled v-model.trim="ceo" id="ceo" size="mini"></el-input>
+        </div>
+        <div :class="styleObject[2]" class="infoText" style="top: 390px">
+          简介：
+        </div>
+        <div class="itemDiv" style="left: 13px; top: 415px">
+          <el-input
+            @focus="focused(2)"
+            @blur="unfocused"
+            maxlength="60"
+            show-word-limit
+            v-model.trim="profileNew"
+            id="eprofile"
+            type="textarea"
+            :rows="6"
+            placeholder="请输入内容"
+          ></el-input>
+        </div>
+      </div>
+      <div id="searchBox">
+        <el-table
+          row-key="wid"
+          :row-style="tableStyle"
+          :data="curEmps"
+          height="700"
+          stripe
+          style="width: 100%"
         >
+          <el-table-column label="姓名" width="250">
+            <template slot-scope="scope">
+              <img
+                :src="computeUrl(scope.row.avatar_url,scope.row.name)"
+                style="
+                  width: 50px;
+                  height: 50px;
+                  border-radius: 25px;
+                  position: relative;
+                  top: 5px;
+                "
+              />
+              <span style="margin-left: 20px; position: relative; top: -16px">{{
+                scope.row.name
+              }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="post" label="职位" width="200">
+          </el-table-column>
+          <el-table-column prop="wid" label="工号" width="200"> </el-table-column>
+          <el-table-column align="center" width="150" label="是否为管理员">
+            <template slot-scope="scope">
+              <span>{{ scope.row.type? "是" : "否" }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" label="操作" width="100px">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                type="primary"
+                @click="handleEdit(scope.row.username)"
+                >编辑</el-button
+              >
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
-      <div id="cancelButton" v-if="isChange">
-        <el-button size="small" @click="cancelAllChange">取消</el-button>
-      </div>
-      <div class="infoText" style="top: 35px">图标：</div>
-      <img :src="teamInfo.avatarUrl" id="timg" />
-      <div class="infoText" style="top: 105px">团队号：</div>
-      <div class="itemDiv" style="top: 130px">
-        <el-input
-          disabled
-          v-model.trim="teamInfo.id"
-          id="tid"
-          size="mini"
-        ></el-input>
-      </div>
-      <div :class="styleObject[0]" class="infoText" style="top: 175px">
-        团队名：
-      </div>
-      <div class="itemDiv" style="top: 200px">
-        <el-input
-          @focus="focused(0)"
-          v-model.trim="nameNew"
-          id="tname"
-          size="mini"
-        ></el-input>
-      </div>
-      <div :class="styleObject[1]" class="infoText" style="top: 245px">
-        办公地：
-      </div>
-      <div class="itemDiv" style="top: 270px">
-        <el-input
-          @focus="focused(1)"
-          v-model.trim="placeNew"
-          id="place"
-          size="mini"
-        ></el-input>
-      </div>
-      <div class="infoText" style="top: 315px">CEO：</div>
-      <div class="itemDiv" style="top: 340px">
-        <el-input disabled v-model.trim="ceo" id="ceo" size="mini"></el-input>
-      </div>
-      <div :class="styleObject[2]" class="infoText" style="top: 390px">
-        简介：
-      </div>
-      <div class="itemDiv" style="left: 13px; top: 415px">
-        <el-input
-          @focus="focused(2)"
-          @blur="unfocused"
-          maxlength="60"
-          show-word-limit
-          v-model.trim="profileNew"
-          id="eprofile"
-          type="textarea"
-          :rows="6"
-          placeholder="请输入内容"
-        ></el-input>
-      </div>
-    </div>
-    <div id="searchBox">
-      <el-table
-        row-key="wid"
-        :row-style="tableStyle"
-        :data="curEmps"
-        height="700"
-        stripe
-        style="width: 100%"
-      >
-        <el-table-column label="姓名" width="200">
-          <template slot-scope="scope">
-            <img
-              :src="scope.row.url"
-              style="
-                width: 50px;
-                height: 50px;
-                border-radius: 25px;
-                position: relative;
-                top: 5px;
-              "
-            />
-            <span style="margin-left: 20px; position: relative; top: -16px">{{
-              scope.row.name
-            }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="post" label="职位" width="200">
-        </el-table-column>
-        <el-table-column prop="wid" label="工号"> </el-table-column>
-        <el-table-column align="center" label="是否为管理员">
-          <template slot-scope="scope">
-            <span>{{ scope.row.type? "是" : "否" }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="操作">
-          <template slot-scope="scope">
-            <el-button
-              size="mini"
-              type="primary"
-              @click="handleEdit(scope.row.username)"
-              >编辑</el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
     </div>
     <!-- 编辑对话框 -->
+  </div>
     <el-dialog
       @closed="clearUserChange()"
       title="员工管理"
@@ -164,20 +174,20 @@
                 top: 10px;
               "
           /></el-col>
-          <el-col :span="10"
-            ><h1>{{ curName }}</h1></el-col
+          <el-col :span="20"
+            ><h1>{{ `${curName}(${curUserName})` }}</h1></el-col
           >
         </el-form-item>
-        <el-form-item label="职位" :label-width="formLabelWidth">
+        <el-form-item label="职位">
           <el-input v-model="newPost"></el-input>
         </el-form-item>
-        <el-form-item label="工号" :label-width="formLabelWidth">
+        <el-form-item label="工号">
           <el-input v-model="newWid"></el-input>
         </el-form-item>
-        <el-form-item label="是否为管理员" :label-width="formLabelWidth">
+        <el-form-item label="是否为管理员">
           <el-radio-group v-model="newType">
-            <el-radio :label="1">是</el-radio>
-            <el-radio :label="0">否</el-radio>
+            <el-radio :label="true">是</el-radio>
+            <el-radio :label="false">否</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -195,7 +205,7 @@
         searchName = '';
         empty = true;
       "
-      width="450px"
+      width="650px"
       :visible.sync="isAdd"
     >
       <el-form>
@@ -209,7 +219,7 @@
         </el-form-item>
         <el-form-item>
           <el-input
-            v-model="searchName"
+            v-model.trim="searchName"
             @change="searchUser"
             width="400px"
             placeholder="请输入用户名或姓名"
@@ -229,14 +239,14 @@
             :cell-style="{ padding: '3px' }"
             :row-style="inviteStyle"
             :data="searchResult"
-            height="100px"
+            max-height="300px"
             stripe
             style="width: 100%"
           >
-            <el-table-column width="300">
+            <el-table-column width="500">
               <template slot-scope="scope">
                 <img
-                  :src="scope.row.avatarUrl"
+                  :src="computeUrl(scope.row.avatarUrl,scope.row.name?scope.row.name:scope.row.username)"
                   style="
                     width: 30px;
                     height: 30px;
@@ -271,14 +281,16 @@
         </el-form-item>
       </el-form>
     </el-dialog>
-  </div>
+</div>
 </template>
 
 <script>
+import UploadDialogVue from '../UploadDialog/UploadDialog.vue';
 export default {
+  name:"TeamPage",
   data() {
     return {
-      teamInfo: null,
+      teamInfo: {},
       emps: [],
       curEmps: [],
       ceo: "",
@@ -286,12 +298,15 @@ export default {
       placeNew: "",
       profileNew: "",
       searchMsg: "",
-      select: null,
+      select: "1",
       searchName: "",
       searchResult: [],
       isEdit: false,
       isAdd: false,
       isChange: false,
+      isShowEdit:false,
+      isBeginEdit:false,
+      avatarUrl:'',
       empty: true,
       curUserName: "",
       curName: "",
@@ -300,7 +315,7 @@ export default {
       curType: "",
       curWid: "",
       newPost: "",
-      newType: "",
+      newType: Boolean,
       newWid: "",
       editChange: false,
       userChange: false,
@@ -315,10 +330,35 @@ export default {
       },
     };
   },
-  beforeMount() {
+  mounted() {
     this.baseInfoSearch();
   },
   methods: {
+    computeUrl(url,name){
+      if(name){
+          if (/[\u4E00-\u9FA5\uFE30-\uFFA0]/.test(name)&&name.length>=2) {
+              return url==''||!url?"https://ui-avatars.com/api/?size=512&&font-size=0.33&&background=0088fe&&name="+name.slice(-2):url
+          }//包含中文且长度大于等于2
+          return url==''||!url?"https://ui-avatars.com/api/?size=512&&font-size=0.33&&background=0088fe&&name="+name.slice(0,1):url
+      }
+      else
+          return ''
+    },
+    mouseIn() {
+      this.isShowEdit = true;
+    },
+    mouseOut() {
+      this.isShowEdit = false;
+    },
+    beginEdit(){
+      this.isBeginEdit = true
+    },
+    close(){
+      this.isBeginEdit = false
+    },
+    updateUrl(url){
+      this.teamInfo.avatarUrl = url
+    },
     clearUserChange() {
       this.curUserName = "";
       this.curName = "";
@@ -327,7 +367,7 @@ export default {
       this.curType = "";
       this.curWid = "";
       this.newPost = "";
-      this.newType = "";
+      this.newType = null;
       this.newWid = "";
     },
     focused(target) {
@@ -349,8 +389,8 @@ export default {
       this.emps.forEach((item) => {
         if (item.username == username) {
           this.curUserName = item.username;
-          this.curName = item.name == "" ? item.username : item.name;
-          this.curImgUrl = item.url;
+          this.curName = item.name;
+          this.curImgUrl = this.computeUrl(item.avatar_url,item.name);
           this.newPost = this.curPost = item.post;
           this.newType = this.curType = item.type;
           this.newWid = this.curWid = item.wid;
@@ -517,7 +557,7 @@ export default {
             this.teamInfo = res.data.data.teamInfo;
             this.emps = res.data.data.emps;
             this.emps.forEach(item=>{
-              if(item.name==''){
+              if(item.name==''||!item.name){
                 item.name = item.username
               }
             })
@@ -569,14 +609,18 @@ export default {
         })
         .then((res) => {
           if (res.data.code == 1) {
+            if(res.data.data==null)
+              return
             this.empty = false;
             this.searchResult = res.data.data;
             this.searchResult.forEach(() => {
               this.searchResult.isDisabled = false;
             });
           } else {
+            this.empty = true;
+            this.searchResult = {};
             this.$message({
-              type: "error",
+              type: "warning",
               message: res.data.msg,
             });
           }
@@ -671,7 +715,9 @@ export default {
         .delete(
           "/teams/employee",
           {
-            username: this.curUserName,
+            params:{
+              username: this.curUserName,
+            }
           },
           { timeout: 1000 }
         )
@@ -721,9 +767,30 @@ export default {
     newWid() {
       this.editChange = !this.diffUser();
     },
+    select(){
+      this.filterMethod()
+    },
+    searchMsg(){
+      this.filterMethod()
+    }
   },
+  computed:{
+    computedTeamUrl(){
+      if(this.teamInfo.name){
+        if (/[\u4E00-\u9FA5\uFE30-\uFFA0]/.test(this.teamInfo.name)&&this.teamInfo.name.length>=2) {
+            return this.teamInfo.avatarUrl==''||!this.teamInfo.avatarUrl?"https://ui-avatars.com/api/?size=512&&font-size=0.33&&background=f7f7f7&&name="+this.teamInfo.name.slice(-2):this.teamInfo.avatarUrl
+        }//包含中文且长度大于等于2
+        return this.teamInfo.avatarUrl==''||!this.teamInfo.avatarUrl?"https://ui-avatars.com/api/?size=512&&font-size=0.33&&background=f7f7f7&&name="+this.teamInfo.name.slice(0,1):this.teamInfo.avatarUrl
+      }
+      else
+        return ''
+    },
+  },
+  components:{
+    UploadDialogVue
+  }
 };
-</script>
+</script>infoText
 
 <style lang="scss" scoped>
 .el-form-item {
@@ -736,12 +803,10 @@ export default {
   color: #409eff !important;
 }
 #teamPage {
-  position: absolute;
-  top: 30px;
-  left: 235px;
-  width: 1300px;
-  height: 825px;
-  /* background-color: white; */
+  width: 100%;
+  height: 100%;
+  min-height: 840px;
+  background-color: white; 
   border-radius: 5px;
   border-width: 3px;
 }
@@ -749,13 +814,15 @@ export default {
   position: absolute;
   top: 0px;
   left: 0px;
-  width: 1306px;
+  width: 100%;
   height: 70px;
   background-color: rgb(250, 250, 250);
   border-radius: 5px 5px 0px 0px;
   border-width: 3px;
 }
 #teamAvatar {
+  object-fit: cover;
+  object-position: center;
   position: absolute;
   top: 10px;
   left: 60px;
@@ -781,22 +848,27 @@ export default {
 #search {
   position: absolute;
   top: 15px;
-  left: 500px;
+  right: 200px;
   width: 600px;
   height: 30px;
 }
 #addEmp {
   position: absolute;
   top: 15px;
-  left: 1125px;
+  right: 50px;
   width: 100px;
   height: 30px;
 }
-#baseInfo {
-  background-color: white;
+#mainFrame{
+  display: flex;
   position: absolute;
   top: 70px;
   left: 0px;
+  justify-content: space-around;
+  width: 100%;
+}
+#baseInfo {
+  background-color: white;
   width: 400px;
   height: 755px;
 }
@@ -820,15 +892,40 @@ export default {
   height: 27px;
 }
 #timg {
+  object-fit: cover;
+  object-position: center;
   position: absolute;
-  top: 10px;
-  left: 160px;
+  top: 0px;
+  left: 0px;
   width: 90px;
   height: 90px;
   border-radius: 5px;
   border-width: 2px;
   border-color: rgb(215, 215, 215);
   border-style: solid;
+}
+#avatarBox {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Chrome/Safari/Opera */
+  -khtml-user-select: none; /* Konqueror */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none;
+  position: absolute;
+  height: 95px;
+  width: 120px;
+  top: 10px;
+  left: 160px;
+}
+#changeImg {
+  position: absolute;
+  top: 68px;
+  left: 95px;
+  height: 28px;
+  width: 28px;
+}
+#changeImg:hover{
+  cursor: pointer;
 }
 /deep/#tid {
   padding-left: 3px;
@@ -843,9 +940,6 @@ export default {
   padding-left: 3px;
 }
 #searchBox {
-  position: absolute;
-  top: 70px;
-  left: 400px;
   width: 905px;
   height: 755px;
   background-color: white;
@@ -881,4 +975,5 @@ export default {
   border-radius: 2px;
   background: #eee;
 }
+
 </style>

@@ -4,19 +4,25 @@
       @click="beginEdit"
       v-show="isShowEdit"
       id="changeImg"
-      src="../../assets/change.svg"
+      src="@/assets/change.svg"
     />
-    <img id="avatarImg" src="../../assets/cat.jpg" alt="user's avatar">
+    <img id="avatarImg" :src="url" alt="user's avatar">
+    <UploadDialogVue @close="close" @updateUrl="updateUrl" :isEdit="isEdit" target="users"/>
   </div>
 </template>
 
 <script>
+import UploadDialogVue from '../UploadDialog/UploadDialog.vue';
 export default {
   data() {
     return {
       isShowEdit: false,
-      circleUrl: "https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png",
+      isEdit:false,
     };
+  },
+  props:['url'],
+  components:{
+    UploadDialogVue
   },
   methods: {
     mouseIn() {
@@ -26,18 +32,23 @@ export default {
       this.isShowEdit = false;
     },
     beginEdit() {
-      console.log("beginEdit");
+      this.isEdit = true
     },
+    close(){
+      this.isEdit = false
+    },
+    updateUrl(url){
+      this.$emit("updateUrl",url)
+    }
   },
 };
 </script>
 
 <style lang="scss" scoped>
-* {
-  margin: 0;
-  padding: 0;
-}
+
 #avatarImg{
+  object-fit: cover;
+  object-position: center;
   height: 200px;
   width: 200px;
   border-radius: 100px;
@@ -45,12 +56,17 @@ export default {
   flex: 1;
 }
 #avatarBox {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Chrome/Safari/Opera */
+  -khtml-user-select: none; /* Konqueror */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none;
   position: relative;
   height: 200px;
   width: 200px;
   top: 0;
   left: 0;
-
 }
 #changeImg {
   position: absolute;

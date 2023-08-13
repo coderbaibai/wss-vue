@@ -32,11 +32,11 @@ export default {
             switch(target){
                 case 0:
                     this.pageName = '工位预约'
-                    this.$router.push("/reservation",()=>{},()=>{})
+                    this.$router.push({path:"/base/reservation"},()=>{},()=>{})
                     break;
                 case 1:
                     this.pageName = '个人主页'
-                    this.$router.push("/user",()=>{},()=>{})
+                    this.$router.push({path:"/base/user"},()=>{},()=>{})
                     break;
             }
         }

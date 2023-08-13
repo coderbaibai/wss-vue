@@ -1,25 +1,32 @@
 <template>
+<div>
     <div id="reservationPage">
-        <div id="statusItems">
-            <div class="statusItem">
-                <StatusItemVue busy />
+        <div id="mainWindow">
+            <div id="statusItems">
+                <div class="statusItem">
+                    <StatusItemVue busy />
+                </div>
+                <div class="statusItem">
+                    <StatusItemVue free />
+                </div>
+                <div class="statusItem">
+                    <StatusItemVue reserved />
+                </div>
+                <div class="statusItem">
+                    <StatusItemVue allocated />
+                </div>
+                <div class="statusItem" style="margin-right:0">
+                    <StatusItemVue error />
+                </div>
             </div>
-            <div class="statusItem">
-                <StatusItemVue free />
-            </div>
-            <div class="statusItem">
-                <StatusItemVue reserved />
-            </div>
-            <div class="statusItem">
-                <StatusItemVue allocated />
-            </div>
-            <div class="statusItem">
-                <StatusItemVue error />
+            <div id="mw">
+                <MainWindowVue @reserveWorkPlace="reserveWorkPlace" />
             </div>
         </div>
-        <div id="mw">
-            <MainWindowVue @reserveWorkPlace="reserveWorkPlace" />
+        <div id="nl">
+            <NoticeListVue/>
         </div>
+    </div>
         <el-dialog title="预约工位" :visible.sync="isReserved">
             <el-form :inline="true" :model="reservation" class="demo-form-inline" label-position="top">
                 <el-row :gutter="10">
@@ -43,13 +50,15 @@
                 <el-button @click="isReserved = false">取消</el-button>
             </div>
         </el-dialog>
-    </div>
+</div>
 </template>
 
 <script>
-import MainWindowVue from './MainWindow.vue'
+import MainWindowVue from '../Mainwindow/MainWindow.vue'
+import NoticeListVue from './NoticeList.vue'
 import StatusItemVue from './StatusItem.vue'
 export default {
+    name:"ReservationPage",
     data() {
         return {
             isReserved: false,
@@ -63,7 +72,8 @@ export default {
     },
     components: {
         StatusItemVue,
-        MainWindowVue
+        MainWindowVue,
+        NoticeListVue
     },
     methods: {
         reserveWorkPlace() {
@@ -110,24 +120,42 @@ export default {
 
 <style scoped>
 #mw {
-    position: absolute;
-    top: 135px;
-    left: 239px;
+    height: 100%;
+    width: 100%;
+    margin-top: 5px;
 }
 
 #reservationPage {
     position: relative;
+    display: flex;
+    width: 99.5%;
+    height: 100%;
 }
-
 #statusItems {
-    position: absolute;
-    top: 35px;
-    left: 268px;
-    width: 1111px;
+    width: 100%;
+    height: 100px;
+    display: flex;
+    justify-content: space-between;
 }
-
 .statusItem {
-    display: inline-block;
-    margin-right: 12px;
+    height: 100%;
+    width: 100%;
+    min-width: 180px;
+    margin-right: 1%;
+}
+#mainWindow{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+#nl{
+    height: 100%;
+    width: 328px;
+    flex-shrink: 0;
+    margin-left: 10px;
+    padding-bottom: 10px;
+    box-sizing: border-box;
+    background-color: rgb(255, 255, 255);
 }
 </style>

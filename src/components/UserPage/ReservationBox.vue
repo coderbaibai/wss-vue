@@ -17,7 +17,7 @@
 	  <div class="iconItem" id="logout">
 		<el-button @click="logout" class="eiconItem" type="info" plain>销</el-button>
 	  </div>
-	  <div class="iconItem" id="add">
+	  <div class="iconItem" id="add" v-if="!inCompany">
 		<el-button id="addItem" class="eiconItem" plain @click="addTeam"></el-button
 		><img id="addImg" src="../../assets/add.svg" />
 	  </div>
@@ -180,11 +180,17 @@ export default {
 			message: '已退出登录',
 			type: 'success'
 		});
-	  	this.$emit('logout')
+		this.$router.push("/start",()=>{},()=>{});
 	}
   },
   props:{
-	reservations:Array
+	reservations:{
+		type:Array
+	},
+	inCompany:{
+		type:Boolean,
+		default:false
+	}
   }
 };
 </script>

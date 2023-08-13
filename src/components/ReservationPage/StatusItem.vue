@@ -1,5 +1,5 @@
 <template>
-<div style="position:relative">
+<div style="position:relative;height: 100%;width:100%;">
 	<div class="seatStatus" v-if="busy">
 		<div class="innerStatus" id="busy" style="background-color: rgb(204, 204, 204)">
 			<img class="statusImg" src="../../assets/use.png">
@@ -70,8 +70,8 @@ export default {
 .seatStatus{
     background-color: white;
     position: relative;
-    height: 94px;
-    width: 210px;
+    height: 100%;
+    width: 100%;
     border-radius: 4px;
 }
 .innerStatus{

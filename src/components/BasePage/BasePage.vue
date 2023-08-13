@@ -2,20 +2,21 @@
 <div id="basePage">
   <div class="top-guide">
         <span id="links">{{pageName}}</span>
-        <span id="name">Tom</span>
-        <span id="avatar"><a href="#"><img src="../../assets/sleepCat.jpg" alt="user's avatar"></a></span>
+        <span id="name">{{name}}</span>
+        <span id="avatar"><a href="#"><img :src="url" alt="user's avatar"></a></span>
         <span id="help"><a href="#">帮助</a></span>
         <span id="helpImg"><a href="#"><img class="question" src="../../assets/问号.png" alt="help"></a></span>
     </div>
     <div id="left-guide">
-        <ul>
-            <li><img src="../../assets/HIT.png" alt="" style="width:185px;"></li>
+        <ul> 
+            <li><img src="../../assets/HIT.png"></li>
             <li :class="liObject[0]" @click ="turnToUser(0)"><div class="left-div"></div><div class="textDiv" href="#">工位预约</div></li>
-            <li :class="liObject[1]" @click ="turnToUser(1)"><div class="left-div"></div><div class="textDiv" href="#">布局管理</div></li>
-            <li :class="liObject[2]" @click ="turnToUser(2)"><div class="left-div"></div><div class="textDiv" href="#">工位管理</div></li>
-            <li :class="liObject[3]" @click ="turnToUser(3)"><div class="left-div"></div><div class="textDiv" href="#">统计报表</div></li>
-            <li :class="liObject[4]" @click ="turnToUser(4)"><div class="left-div"></div><div class="textDiv" href="#">公司主页</div></li>
-            <li :class="liObject[5]" @click ="turnToUser(5)"><div class="left-div"></div><div class="textDiv" href="#">个人主页</div></li>
+            <li :class="liObject[1]" @click ="turnToUser(1)"><div class="left-div"></div><div class="textDiv" href="#">预约管理</div></li>
+            <li :class="liObject[2]" @click ="turnToUser(2)"><div class="left-div"></div><div class="textDiv" href="#">布局管理</div></li>
+            <li :class="liObject[3]" @click ="turnToUser(3)"><div class="left-div"></div><div class="textDiv" href="#">工位编辑</div></li>
+            <li :class="liObject[4]" @click ="turnToUser(4)"><div class="left-div"></div><div class="textDiv" href="#">统计报表</div></li>
+            <li :class="liObject[5]" @click ="turnToUser(5)"><div class="left-div"></div><div class="textDiv" href="#">公司主页</div></li>
+            <li :class="liObject[6]" @click ="turnToUser(6)"><div class="left-div"></div><div class="textDiv" href="#">个人主页</div></li>
         </ul>
     </div>
 </div>
@@ -29,6 +30,7 @@ export default {
             liObject:[]
         }
     },
+    props:["name","url"],
     methods:{
         turnToUser(target){
             this.liObject = new Array(7)
@@ -36,33 +38,34 @@ export default {
             switch(target){
                 case 0:
                     this.pageName = '工位预约'
-                    this.$router.push("/reservation",()=>{},()=>{})
+                    this.$router.push({path:"/base/reservation"},()=>{},()=>{})
                     break;
                 case 1:
-                    this.pageName = '布局管理'
-                    this.$router.push("/layout",()=>{},()=>{})
+                    this.pageName = '预约管理'
+                    this.$router.push({path:"/base/manage"},()=>{},()=>{})
                     break;
                 case 2:
-                    this.pageName = '工位管理'
-                    this.$router.push("/manage",()=>{},()=>{})
+                    this.pageName = '布局管理'
+                    this.$router.push({path:"/base/layout"},()=>{},()=>{})
                     break;
                 case 3:
-                    this.pageName = '统计报表'
-                    this.$router.push("/statics",()=>{},()=>{})
+                    this.pageName = '工位编辑'
+                    this.$router.push({path:"/base/station"},()=>{},()=>{})
                     break;
                 case 4:
-                    this.pageName = '公司主页'
-                    this.$router.push("/team",()=>{},()=>{})
+                    this.pageName = '统计报表'
+                    this.$router.push({path:"/base/statics"},()=>{},()=>{})
                     break;
                 case 5:
+                    this.pageName = '公司主页'
+                    this.$router.push({path:"/base/team"},()=>{},()=>{})
+                    break;
+                case 6:
                     this.pageName = '个人主页'
-                    this.$router.push("/user",()=>{},()=>{})
+                    this.$router.push({path:"/base/user"},()=>{},()=>{})
                     break;
             }
         }
-    },
-    props:{
-        url:String
     }
 }
 </script>
@@ -74,8 +77,8 @@ export default {
     font-family:微软雅黑;
 }
 #basePage{
-    height: 900px;
-    width: 1544px;
+    height: 100%;
+    width: 100%;
     background-color: rgb(215, 215, 215);
 }
 a{
@@ -86,11 +89,16 @@ a{
 }
 /* 以下为左侧导航栏 */
 #left-guide{
-    position: absolute;
+    position: fixed;
     left: 0;
-    height: 890px;
+    height: 100%;
     width: 224px;
     background-color: rgb(63, 63, 63);
+    z-index: 100;
+}
+#left-guide ul{
+    display: flex;
+    flex-direction: column;
 }
 #left-guide li{
     list-style-type: none;
@@ -98,6 +106,10 @@ a{
     margin-bottom: 10px;
     text-align: center;
     font-size: 12px;
+    width: 100%;
+}
+#left-guide img{
+    width: 90%;
 }
 #left-guide ul>li:nth-of-type(n+2){
     position:relative;
@@ -137,7 +149,7 @@ a{
 .top-guide{
     position:absolute;
     top:0;
-    width: 1544px;
+    width: 100%;
     height: 64px;
     background-color: rgb(255,255,255);
 }
@@ -165,7 +177,7 @@ a{
     color: rgb(101,101,101);
 } */
 #name,#help{
-    margin-right: 100px;
+    margin-right: 50px;
     margin-top: 25px;
     font-size: medium;
     color: rgb(153, 153, 153);

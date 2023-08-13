@@ -4,10 +4,10 @@
         <el-input v-model.trim="username" id="usernameInput" placeholder="Username" clearable></el-input>
     </div>
     <div id="password">
-        <el-input v-model.trim="password" id="passwordInput" placeholder="password" clearable></el-input>
+        <el-input show-password v-model.trim="password" id="passwordInput" placeholder="password" clearable></el-input>
     </div>
     <div id="repassword">
-        <el-input v-model.trim="repassword" id="repasswordInput" placeholder="Confirm Password" clearable></el-input>
+        <el-input show-password v-model.trim="repassword" id="repasswordInput" placeholder="Confirm Password" clearable></el-input>
     </div>
     <div id="policy">
         <el-checkbox v-model="checked" id="policyInput"></el-checkbox>

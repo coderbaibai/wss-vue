@@ -17,8 +17,7 @@ export const Middle = {
     middleRight:3
 }
 export var redrawAll = function(ctx,canvas,rects,rotatePoint){
-    console.log("redraw");
-    ctx.clearRect(0,0,canvas.clientWidth,canvas.clientHeight)
+    ctx.clearRect(0,0,canvas.clientWidth+10,canvas.clientHeight+10)
     var index = -1;
     for(var i=0;i<rects.length;i++){
         rects[i].draw(ctx)
@@ -62,8 +61,9 @@ export function RoratePoint(image,point){
         this.anchor.y = (leftTop.y+rightTop.y)/2 - this.distance*Math.cos(Rect.rotate)
     }
 }
-export function Rect(id,image,point,width,height,rotate){
+export function Rect(id,image,point,width,height,rotate,pid){
     this.id = id
+    this.pid = pid
     this.image = image
     this.anchor = {x:point.x+width/2,y:point.y+height/2}
     this.width = width
@@ -72,6 +72,9 @@ export function Rect(id,image,point,width,height,rotate){
     this.radius = Math.sqrt((width/2)**2+(height/2)**2)
     this.isSelected = false
     this.isConflict = false
+    this.getCopy = ()=>{
+        return new Rect(this.id,this.image,new Point(this.anchor.x-width/2,this.anchor.y-height/2),this.width,this.height,this.rotate,this.pid)
+    }
     this.draw = function(ctx){
         this.drawImg(ctx)
         if(this.isSelected)
@@ -199,7 +202,7 @@ export function isPointInRect(point,rect){
 }
 //判断点是否在任意矩形中
 export function isPointInAnyRect(point,rects){
-    for(let i=0;i<rects.length;i++){
+    for(let i=rects.length-1;i>=0;i--){
         if(getDistance(point,rects[i].anchor)>rects.radius){
             continue;
         }
@@ -211,14 +214,33 @@ export function isPointInAnyRect(point,rects){
 }
 //判断矩形和矩形是否冲突的办法
 export function isTheRectsConflict(rectA,rectB){
- return isPointInRect(rectA.getCorner(Corner.leftTop),rectB)||
-        isPointInRect(rectA.getCorner(Corner.rightTop),rectB)||
-        isPointInRect(rectA.getCorner(Corner.leftBottom),rectB)||
-        isPointInRect(rectA.getCorner(Corner.rightBottom),rectB)||
-        isPointInRect(rectB.getCorner(Corner.leftTop),rectA)||
-        isPointInRect(rectB.getCorner(Corner.rightTop),rectA)||
-        isPointInRect(rectB.getCorner(Corner.leftBottom),rectA)||
-        isPointInRect(rectB.getCorner(Corner.rightBottom),rectA)
+    var ALT = rectA.getCorner(Corner.leftTop)
+    var ART = rectA.getCorner(Corner.rightTop)
+    var ALB = rectA.getCorner(Corner.leftBottom)
+    var ARB = rectA.getCorner(Corner.rightBottom)
+    var BLT = rectB.getCorner(Corner.leftTop)
+    var BRT = rectB.getCorner(Corner.rightTop)
+    var BLB = rectB.getCorner(Corner.leftBottom)
+    var BRB = rectB.getCorner(Corner.rightBottom)
+    return  isPointInRect(rectA.anchor,rectB)||
+            isPointInRect(rectB.anchor,rectA)||
+            checkCross(ALT,ART,BLT,BRT)||
+            checkCross(ALT,ART,BLT,BLB)||
+            checkCross(ALT,ART,BRT,BRB)||
+            checkCross(ALT,ART,BLB,BRB)||
+            checkCross(ART,ARB,BLT,BRT)||
+            checkCross(ART,ARB,BLT,BLB)||
+            checkCross(ART,ARB,BRT,BRB)||
+            checkCross(ART,ARB,BLB,BRB)||
+            checkCross(ALT,ALB,BLT,BRT)||
+            checkCross(ALT,ALB,BLT,BLB)||
+            checkCross(ALT,ALB,BRT,BRB)||
+            checkCross(ALT,ALB,BLB,BRB)||
+            checkCross(ALB,ARB,BLT,BRT)||
+            checkCross(ALB,ARB,BLT,BLB)||
+            checkCross(ALB,ARB,BRT,BRB)||
+            checkCross(ALB,ARB,BLB,BRB)
+            
 }
 export function detectRectsConflict(rects){
     for(var j=0;j<rects.length;j++){
@@ -245,4 +267,27 @@ export function isPointInRotate(point,rotatePoint){
     point.x>rotatePoint.anchor.x-rotatePoint.width/2-10&&
     point.y<rotatePoint.anchor.y+rotatePoint.height/2&&
     point.y>rotatePoint.anchor.y-rotatePoint.height/2-10
+}
+export function crossMul(v1,v2){
+    return   v1.x*v2.y-v1.y*v2.x;
+}
+export function checkCross(p1,p2,p3,p4){
+    if(Math.max(p1.x,p2.x)<Math.min(p3.x,p4.x)||
+    Math.max(p1.y,p2.y)<Math.min(p3.y,p4.y)||
+    Math.max(p3.x,p4.x)<Math.min(p1.x,p2.x)||
+    Math.max(p3.y,p4.y)<Math.min(p1.y,p2.y))
+        return false
+    var v1={x:p1.x-p3.x,y:p1.y-p3.y};
+    var v2={x:p2.x-p3.x,y:p2.y-p3.y};  
+    var v3={x:p4.x-p3.x,y:p4.y-p3.y};  
+    var v=crossMul(v1,v3)*crossMul(v2,v3);  
+    v1={x:p3.x-p1.x,y:p3.y-p1.y};  
+    v2={x:p4.x-p1.x,y:p4.y-p1.y};  
+    v3={x:p2.x-p1.x,y:p2.y-p1.y};
+    var res = (v<=0&&crossMul(v1,v3)*crossMul(v2,v3)<=0)?true:false;
+    return res
+}
+export function setRectAbove(index,rects){
+    rects.push(rects[index]);
+    rects.splice(index,1)
 }

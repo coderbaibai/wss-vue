@@ -1,14 +1,12 @@
 <template>
     <div id="edit">
         <div id="head">
-            <EditHeaderVue :seats="seats" :emps="emps" :posts="posts"/>
+            <EditHeaderVue :areas="areas" :emps="emps" :posts="posts"/>
         </div>
         <div id="blackLine"></div>
         <div id="items">
             <EmpItemVue v-for="(itemInfo,index) in itemInfos" :key="index" :itemInfo="itemInfo"/>
-            <div id="empty"></div>
         </div>
-        <div v-show="showSave" id="save">保存</div>
     </div>
 </template>
 
@@ -37,9 +35,9 @@ export default {
     },
     props:{
         itemInfos:[],
-        seats:[],
         emps:[],
-        posts:[]
+        posts:[],
+        areas:[]
     }
 }
 </script>
@@ -50,27 +48,27 @@ export default {
     padding: 0;
 }
 #blackLine{
-    position: absolute;
-    top: 177px;
     z-index: 10;
     width: 100%;
-    height: 2px;
+    min-height: 2px;
     background-color: rgb(121, 121, 121);
 }
 #edit{
     position: relative;
-    display: inline-block;
     background-color: white;
-    height: 775px;
-    width: 328px;
-    top: 0;
-    left: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
     border-radius: 4px;
 }
+#head{
+    width: 100%;
+    min-height: 177px;
+}
 #items{
-    position:absolute;
-    top: 179px;
-    height: 589px;
+    position:relative;
+    height: 100%;
     overflow-x: hidden;
     overflow-y: scroll;
     background-color: white;
@@ -79,24 +77,24 @@ export default {
 #items::-webkit-scrollbar{
     display: none;
 }
-#empty{
-    position: absolute;
-    height: 47px;
-    width: 328px;
-    background-color: white;
-}
-#save{
-    position: absolute;
-    z-index: 20;
-    bottom: 0;
-    height: 47px;
-    width: 328px;
-    border-radius: 4px;
-    background-color: rgb(14,124,204);
-    font-family: microsoft yahei;
-    line-height: 44px;
-    color: white;
-    font-weight: 700;
-    text-align: center;
-}
+// #empty{
+//     position: absolute;
+//     height: 47px;
+//     width: 328px;
+//     background-color: white;
+// }
+// #save{
+//     position: absolute;
+//     z-index: 20;
+//     bottom: 0;
+//     height: 47px;
+//     width: 328px;
+//     border-radius: 4px;
+//     background-color: rgb(14,124,204);
+//     font-family: microsoft yahei;
+//     line-height: 44px;
+//     color: white;
+//     font-weight: 700;
+//     text-align: center;
+// }
 </style>

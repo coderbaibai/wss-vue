@@ -1,343 +1,545 @@
 <template>
-    <div id="layout" ref="layout">
+<div>
+    <div id="layout" ref="layout" @mouseup="containerMouseUp">
+        <div id="layoutWindow">
+            <div id="mainWindow" ref="mainWindow">
+                <div id="header">
+                    <div id="areaItems">
+                        <div id="floorItems">
+                            <!-- 办公楼下拉框 -->
+                            <span class="floorInfo">办公楼:</span>
+                            <div style="width:93px" class="selectItem"><el-select clearable size="mini" id="ffs" v-model="selectBuilding"
+                                    > <el-option v-for="building in buildings" :key="building"
+                                        :label="building" :value="building"></el-option></el-select></div>
+                            <!-- 楼层下拉框 -->
+                            <span class="floorInfo">楼层:</span>
+                            <div class="selectItem"><el-select :disabled="floorDisabled" clearable id="sfs" size="mini" v-model="selectFloor"
+                                    ><el-option v-for="floor in floors" :key="floor"
+                                        :label="floor" :value="floor"></el-option></el-select></div>
+                            <!-- 房间下拉框 -->
+                            <span class="floorInfo">房间号:</span>
+                            <div class="selectItem"><el-select :disabled="areaDisabled" clearable id="tfs" size="mini" v-model="selectRoom">
+                                    <el-option v-for="room in rooms" :key="room" :label="room"
+                                        :value="room"></el-option></el-select>
+                            </div>
+                        </div>
+                        <div id="addDiv">
+                            <span class="innerSpan"></span>
+                            <el-button @click="addPage" icon="el-icon-circle-plus-outline" class="innerText" type="primary"></el-button>
+                        </div>
+                        <div id="changeDiv">
+                            <span class="innerSpan"></span>
+                            <el-button @click="changePage" icon="el-icon-edit" type="primary" class="innerText"></el-button>
+                        </div>
+                        <div id="deleteDiv">
+                            <span class="innerSpan"></span>
+                            <el-popconfirm title="确定删除当前页面及其布局吗" @confirm="deleteArea">
+                                <el-button slot="reference" icon="el-icon-delete" class="innerText" type="danger"></el-button>
+                            </el-popconfirm>
+                        </div>
+                    </div>
+                    <div id="refreshDiv">
+                        <span class="innerSpan">保存</span>
+                        <el-button id="saveText" type="primary" @click="saveCompomentsInstances"></el-button>
+                    </div>
+                </div>
+                <canvas tabindex="0" :style="canvasStyle" id="canvasBox" :width="canvasWidth+'px'" :height="canvasHeight+'px'" ref="canvas" @mousemove="mainMouseMove" @mousedown="mainMouseDown" @mouseup="mainMouseUp" @mouseleave="mainMouseLeave" @mouseenter="mainMouseEnter" @keydown="mainKeyDown">
+                </canvas>
+            </div>
+        </div>
         <!-- ----------------------LayoutList-------------------------- -->
         <div id="layoutList">
             <div id="edit">
-    <!-- -----------------------head------------------------- -->
-            <div id="head">
-                <div id="layoutHead">
-                    <div id="headName">元件列表</div>
-                    <div id="editItem">
-                        <img src="../../assets/seat.svg" />
-                        <h1>明学楼F5-519-001</h1>
-                        <p>
-                            父元件：IKEA家具真皮沙发<br />
-                            长度：30cm &nbsp;&nbsp;&nbsp;宽度：60cm<br />
-                            x轴坐标：&nbsp;&nbsp;<input
-                            type="text"
-                            style="position: relative; left: 0.5px"
-                            class="lineInput"
-                            /><br />
-                            y轴坐标：&nbsp;&nbsp;<input type="text" class="lineInput" /><br />
-                            旋转角度：<input
-                            type="text"
-                            style="position: relative; left: 1.8px"
-                            class="lineInput"
-                            /><br />
-                        </p>
+            <!-- -----------------------head------------------------- -->
+                <div id="head">
+                    <div id="layoutHead">
+                        <div id="headName">元件列表</div>
+                        <div id="editItem">
+                            <img src="../../assets/seat.svg" />
+                            <h1>明学楼F5-519-001</h1>
+                            <p>
+                                父元件：IKEA家具真皮沙发<br />
+                                长度：30cm &nbsp;&nbsp;&nbsp;宽度：60cm<br />
+                                x轴坐标：&nbsp;&nbsp;<input
+                                type="text"
+                                style="position: relative; left: 0.5px"
+                                class="lineInput"
+                                /><br />
+                                y轴坐标：&nbsp;&nbsp;<input type="text" class="lineInput" /><br />
+                                旋转角度：<input
+                                type="text"
+                                style="position: relative; left: 1.8px"
+                                class="lineInput"
+                                /><br />
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <!-- -----------------------canvas------------------------- -->
+                <!-- -----------------------canvas------------------------- -->
                 <div id="blackLine"></div>
                 <div id="items">
-                    <canvas ref="canvasServe" id="layoutCanvas" width="328px" height="589px">
+                    <canvas @mousemove="serverMouseMove" @mousedown="serverMouseDown" @mouseleave="serverMouseLeave" @mouseup="serverMouseUp" ref="canvasServe" id="layoutCanvas" width="328px" height="578px">
                     </canvas>
                 </div>
             </div>
         </div>
         <!-- ----------------------mainWindow-------------------------- -->
-        <div id="layoutWindow">
-            <div id="mainWindow">
-        <div id="floorItems">
-            <!-- 办公楼下拉框 -->
-            <span class="floorInfo">办公楼:</span>
-            <div style="width:93px" class="selectItem"><el-select clearable size="mini" id="ffs" v-model="selectBuilding"
-                    > <el-option v-for="building in buildings" :key="building"
-                        :label="building" :value="building"></el-option></el-select></div>
-            <!-- 楼层下拉框 -->
-            <span class="floorInfo">楼层:</span>
-            <div class="selectItem"><el-select :disabled="floorDisabled" clearable id="sfs" size="mini" v-model="selectFloor"
-                    ><el-option v-for="floor in floors" :key="floor"
-                        :label="floor" :value="floor"></el-option></el-select></div>
-            <!-- 房间下拉框 -->
-            <span class="floorInfo">房间号:</span>
-            <div class="selectItem"><el-select :disabled="areaDisabled" clearable id="tfs" size="mini" v-model="selectRoom">
-                    <el-option v-for="room in rooms" :key="room" :label="room"
-                        :value="room"></el-option></el-select></div>
-        </div>
-        <div id="refreshDiv">
-            <span class="innerSpan">保存</span>
-            <el-button id="saveText" type="primary"></el-button>
-        </div>
-        <div id="addDiv">
-            <span class="innerSpan"></span>
-            <el-button @click="addPage" icon="el-icon-circle-plus-outline" class="innerText" type="primary"></el-button>
-        </div>
-        <div id="changeDiv">
-            <span class="innerSpan"></span>
-            <el-button @click="changePage" icon="el-icon-edit" type="primary" class="innerText"></el-button>
-        </div>
-        <div id="deleteDiv">
-            <span class="innerSpan"></span>
-            <el-popconfirm title="确定删除当前页面及其布局吗" @confirm="deleteArea">
-                <el-button slot="reference" icon="el-icon-delete" class="innerText" type="danger"></el-button>
-            </el-popconfirm>
-        </div>
-        <canvas id="canvasBox" width="888px" height="700px" ref="canvas">
-        </canvas>
-    </div>
-        </div>
+
         <!-- ---------------------------对话框------------------------------------ -->
-        <el-dialog @closed="clearAreaChange" title="区域修改" :visible.sync="isChange">
-            <el-form label-position="right" :model="area" label-width="60px" :inline="true">
-                <el-row :gutter="10">
+        <el-dialog @open="setVolatileArea" @closed="clearAreaChange" title="区域修改" :visible.sync="isChange">
+            <el-form label-position="right" label-width="80px">
+                <h2>修改前</h2>
+                <el-row :gutter="10" type="flex" justify="space-between">
                     <el-form-item label="办公楼">
-                        <el-input v-model="areaNew.buildingName"></el-input>
+                        <el-input v-model.trim="area.buildingName" disabled></el-input>
                     </el-form-item>
                     <el-form-item label="楼层">
-                        <el-input v-model="areaNew.floorName"></el-input>
+                        <el-input v-model.trim="area.floorName" disabled></el-input>
                     </el-form-item>
                     <el-form-item label="区域名">
-                        <el-input v-model="areaNew.areaName"></el-input>
+                        <el-input v-model.trim="area.name" disabled></el-input>
                     </el-form-item>
                 </el-row>
-                <el-row :gutter="10">
-                    <el-form-item label="宽度">
-                        <el-input v-model="areaNew.width"></el-input>
+                <el-row :gutter="10" type="flex" justify="start">
+                    <el-form-item label="长度">
+                        <el-input v-model.number.trim="area.width" disabled></el-input>
                     </el-form-item>
-                    <el-form-item label="高度">
-                        <el-input v-model="areaNew.height"></el-input>
+                    <el-form-item label="宽度">
+                        <el-input v-model.number.trim="area.height" disabled></el-input>
+                    </el-form-item>
+                </el-row>
+            </el-form>
+            <hr style="border:1px dashed #000;">
+            <h2>修改后</h2>
+            <el-form label-position="right" label-width="80px">
+                <el-row :gutter="10" type="flex" justify="space-between">
+                    <el-form-item label="办公楼">
+                        <el-input v-model.trim="volatileArea.buildingName"></el-input>
+                    </el-form-item>
+                    <el-form-item label="楼层">
+                        <el-input v-model.trim="volatileArea.floorName"></el-input>
+                    </el-form-item>
+                    <el-form-item label="区域名">
+                        <el-input v-model.trim="volatileArea.name"></el-input>
+                    </el-form-item>
+                </el-row>
+                <el-row :gutter="10" type="flex" justify="start">
+                    <el-form-item label="长度">
+                        <el-input v-model.number.trim="volatileArea.width"><template slot="append">米</template></el-input>
+                    </el-form-item>
+                    <el-form-item label="宽度">
+                        <el-input v-model.number.trim="volatileArea.height"><template slot="append">米</template></el-input>
                     </el-form-item>
                 </el-row>
             </el-form>
             <div slot="footer">
-                <el-button @click="changeArea" type="primary">修改</el-button>
+                <el-button @click="changeArea" :disabled="isVolatileDiff" type="primary">修改</el-button>
                 <el-button @click="isChange = false">取消</el-button>
             </div>
         </el-dialog>
-
         <el-dialog @closed="clearAreaAdd" title="增添区域" :visible.sync="isAdd">
-            <el-form label-position="right" :model="new_area" label-width="60px" :inline="true">
-                <el-row :gutter="10">
+            <el-form label-position="right" label-width="60px" >
+                <el-row :gutter="10" type="flex">
                     <el-form-item label="办公楼">
-                        <el-input v-model="new_area.buildingName"></el-input>
+                        <el-input v-model.trim="newArea.buildingName" placeholder="请输入楼名"></el-input>
                     </el-form-item>
                     <el-form-item label="楼层数">
-                        <el-input v-model="new_area.floorName"></el-input>
+                        <el-input v-model.trim="newArea.floorName" placeholder="请输入楼层数"></el-input>
                     </el-form-item>
                     <el-form-item label="区域号">
-                        <el-input v-model="new_area.areaName"></el-input>
+                        <el-input v-model.trim="newArea.name" placeholder="请输入区域名或房间号"></el-input>
                     </el-form-item>
                 </el-row>
-                <el-row :gutter="10">
-                    <el-form-item label="区域宽">
-                        <el-input v-model="new_area.width" placeholder="0"></el-input>单位:米
+                <el-row :gutter="10" type="flex" justify="space-between">
+                    <el-form-item label="区域长">
+                        <el-input v-model.number.trim="newArea.width" placeholder="请输入长度"><template slot="append">米</template></el-input>
                     </el-form-item>
-                    <el-form-item label="区域高">
-                        <el-input v-model="new_area.height" placeholder="0"></el-input>单位:米
+                    <el-form-item label="区域宽">
+                        <el-input v-model.number.trim="newArea.height" placeholder="请输入宽度"><template slot="append">米</template></el-input>
                     </el-form-item>
                 </el-row>
             </el-form>
             <div slot="footer">
-                <el-button @click="addArea" type="primary">修改</el-button>
+                <el-button @click="addArea" type="primary">创建</el-button>
                 <el-button @click="isAdd = false">取消</el-button>
             </div>
         </el-dialog>
     </div>
+</div>
 </template>
 
 <script>
-import {isPointInRotate,RoratePoint,Corner,isPointInRect,redrawAll,isPointInAnyRect,Point,Rect,canvasStatus,getDistance,rotatePoint, detectRectsConflict} from '../../canvas/domain.js'
+import {setRectAbove,isPointInRotate,RoratePoint,Corner,isPointInRect,redrawAll,isPointInAnyRect,Point,Rect,canvasStatus,getDistance,rotatePoint, detectRectsConflict} from '../../canvas/domain.js'
 export default {
+    name:"LayoutPage",
     data() {
         return {
+            //有关区域更新的变量
+            area : {},//当前的区域信息，只有在确定后改变，要么为空，要么完整，area变量仅在与后端交互后更新
+            volatileArea:{
+                buildingName:'',
+                floorName:'',
+                name:'',
+                width:0,
+                height:0,
+            },//当前修改后的区域信息，
+            newArea: {
+                buildingName:'',
+                floorName:'',
+                name:'',
+                width:'',
+                height:'',
+            },//新增区域信息
+            areas:[],//所有区域信息，在进入页面，新增页面、删除页面、修改页面后更新
+            //将areas筛选后得到的三个数组，其中buidings是固定的，只会随着areas的变化而改变
+            //而floors和rooms是根据buidings的变化而变化的
+            buildings:[],
+            floors:[],
+            rooms:[],
+            //正在选择中的区域，用于区域框更新算法
+            selectBuilding:'',
+            selectFloor:'',
+            selectRoom:'',
+    //--------------------------------
             once:false,//once变量确保图片只加载一次
             isAdd: false,
             isChange: false,
             isDelete: false,
-            sources:[],
-            images:[],
+            isVolatileDiff:false,
+            sources:{},
+            images:{},
             imgNum:0,
-            areaOld: {
-                buildingName: '',
-                floorName: '',
-                areaName: '',
-                width: 0,
-                height: 0
+            //私有组件
+            privateComponents:{},
+            newPrivateComponent:{
+                name:'',
+                width:0,
+                height:0,
+                parentId:0
             },
-            areaNew:{
-                buildingName: '',
-                floorName: '',
-                areaName: '',
-                width: 0,
-                height: 0
+            curComponent:{
+                pid:0,
+                imageUrl:''
             },
-            privateCompoment:null,
+            //组件实例
             components: [],
             // 添加区域
-            new_area: {
-                buildingName: '',
-                floorName: '',
-                areaName: '',
-                width: '',
-                hight: ''
-            },
             //主窗口数据
             ratio:0,
-            areas:[],
-            buildings:[],
-            floors:[],
-            rooms:[],
-            selectBuilding:'',
-            selectFloor:'',
-            selectRoom:'',
             floorDisabled :true,
             areaDisabled :true,
             // 主窗口画布数据
-            canvas:null,
-            ctx:null,
+            canvas:{},
+            canvasWidth:0,
+            canvasHeight:0,
+            ctx:{},
             canvasInfo : {
                 status: canvasStatus.IDLE,
                 beginPoint: null,
                 currentPoint:null,
                 targetIndex :null
             }, 
-            rotatePoint:null,
+            canvasServeInfo : {
+                status: canvasStatus.IDLE,
+                beginPoint: null,
+                currentPoint:null,
+                targetIndex :null,
+                currentRect:null
+            }, 
+            rotatePoint:{},
             rects:[],
             // 侧边栏画布数据
-            ctxServe:null,
-            canvasServe:null,
+            ctxServe:{},
+            canvasServe:{},
             rectsServe:[],
             // 全局画布数据
             container:null,
             globalRect:null,
             // 侧边栏数据
             wscs:null,
+            observer:{},
+            windowObserve:{},
+            isOrigin :true,
+            isNew:false
         }
     },
     // --------------------生命周期钩子函数-------------------
     mounted(){
-        this.getLayoutInfo()
-        this.getPrivateCompoments()
+        this.mountedInit()
+    },
+    activated(){
+        this.isOrigin = true
     },
     // --------------------------侦听器---------------------
     watch:{
         // 实现楼层下拉菜单搜索
-        selectBuilding(value){
-            if(value==''){
-                this.floorDisabled = true
-                this.selectFloor = ''
-            }
-            else
-                this.floorDisabled = false
+        selectBuilding(){
+            this.areaDisabled = true
+            this.selectRoom = ''
+            this.selectFloor = ''
             this.floors = []
+            if(this.selectBuilding=='')
+                this.floorDisabled = true
+            else{
+                this.floorDisabled = false
+            }
             this.areas.forEach((item)=>{
                 if(this.selectBuilding==item.buildingName&&!this.floors.includes(item.floorName))
                     this.floors.push(item.floorName)
             })
         },
         selectFloor(value){
-            if(value==''){
+            if(this.selectFloor=='')
                 this.areaDisabled = true
-            }
-            else
+            else{
                 this.areaDisabled = false
+            }
+            this.selectRoom = ''
             this.rooms = []
             this.areas.forEach((item)=>{
-                if(this.selectBuilding==item.buildingName&&this.selectRoom==item.selectRoom&&!this.rooms.includes(item.areaName))
-                    this.rooms.push(item.areaName)
+                if(this.selectBuilding==item.buildingName&&this.selectFloor==item.floorName&&!this.rooms.includes(item.name))
+                    this.rooms.push(item.name)
             })
         },
         selectRoom(value){
             if(this.selectBuilding!=''&&this.selectFloor!=''&&this.selectRoom!=''){
+                this.areas.forEach(item=>{
+                    if(item.buildingName==this.selectBuilding&&item.floorName==this.selectFloor&&item.name==this.selectRoom){
+                        this.area = this.copyArea(item);
+                    }
+                })
                 this.getLayoutInfo(this.selectBuilding,this.selectFloor,this.selectRoom)
             }
             else
                 return
+        },
+        volatileArea:{
+            deep:true,
+            handler(){
+                this.diffVolatile()
+            }
         }
         // ---------------------------------------------------------
     },
+    computed:{
+        canvasStyle(){
+            if(this.isOrigin)
+                return null
+            else{
+                return {
+                    height:this.canvasHeight+'px',
+                    width:this.canvasWidth+'px'
+                }
+            }
+        }
+    },
     methods: {
-        initAllCanvasData(){
-            //计算画布大小比例
-            this.ratio = Math.min(888/this.area.width,700/this.area.height)
-            //初始化基本画布信息
-            this.container = this.$refs.layout
+        copyArea(area){
+            return{
+                    buildingName:area.buildingName,
+                    floorName:area.floorName,
+                    name:area.name,
+                    width:area.width,
+                    height:area.height
+            }
+        },
+        diffVolatile(){
+            this.isVolatileDiff = this.area.buildingName==this.volatileArea.buildingName&&
+               this.area.floorName==this.volatileArea.floorName&&
+               this.area.name==this.volatileArea.name&&
+               this.area.width==this.volatileArea.width&&
+               this.area.height==this.volatileArea.height
+        },
+        syncSetSelects(buildingName,floorName,name){
+            this.selectBuilding = buildingName
+            this.$nextTick(()=>{
+                this.selectFloor = floorName
+                this.$nextTick(()=>{
+                    this.selectRoom = name
+                })
+            })
+        },
+        // 根据当前选择的区域重新设置待选
+        resetSelect(){
+            this.buildings = []
+            this.floors = []
+            this.rooms = []
+            this.areas.forEach((item)=>{
+                if(this.selectBuilding==item.buildingName&&!this.floors.includes(item.floorName))
+                    this.floors.push(item.floorName)
+            })
+            this.areas.forEach((item)=>{
+                if(this.selectBuilding==item.buildingName&&this.selectFloor==item.floorName&&!this.rooms.includes(item.name))
+                    this.rooms.push(item.name)
+            })
+            this.areas.forEach(item=>{
+                if(item.buildingName==this.selectBuilding&&item.floorName==this.selectFloor&&item.name==this.selectRoom){
+                    this.area = this.copyArea(item);
+                }
+            })
+        },
+        async mountedInit(){
+            try{
+                await this.getPrivateCompoments()
+                await this.loadImages()
+                this.initServeCanvas()
+                await this.getAllBuildingsInfo()
+                this.autoSelectArea()
+            }catch(e){
+                console.log(e)
+            }
+        },
+        initMainCanvasData(){
             this.canvas = this.$refs.canvas
             this.ctx = this.canvas.getContext('2d')
-            this.canvasServe = this.$refs.canvasServe
-            this.ctxServe = this.canvasServe.getContext('2d')
+            //计算画布大小比例
+            this.mainCanvasRedraw()
+            //开启尺寸监视，实时修改画布尺寸
+            this.windowObserve = new ResizeObserver(()=>{
+                if(this.canvas.height!=this.canvas.clientHeight||this.canvas.width!=this.canvas.clientWidth){
+                    this.isOrigin = true
+                    this.$nextTick(()=>{
+                        try{
+                            this.mainCanvasRedraw()
+                        }
+                        catch(e){
+                            console.log(e)
+                        }
+                    })
+                }
+            })
+            this.windowObserve.observe(this.$refs.mainWindow)
+            // window.addEventListener('resize',()=>{
+            //     console.log("窗口变化")
+            //     this.isOrigin = true
+            // })
+        },
+        mainCanvasRedraw(){
+            var oldRatio = this.ratio
+            this.canvasWidth=this.canvas.clientWidth
+            this.canvasHeight=this.canvas.clientHeight
+            this.ratio = Math.min(this.canvasWidth/this.area.width,this.canvasHeight/this.area.height)
+            if(this.canvasWidth/this.area.width<this.canvasHeight/this.area.height){
+                this.canvasHeight = this.area.height*this.ratio
+                // this.canvas.clientHeight = this.canvasHeight
+            }
+            else{
+                this.canvasWidth = this.area.width*this.ratio
+                // this.canvas.clientWidth = this.canvasWidth
+            }
+            this.isOrigin = false
+            //初始化基本画布信息
             this.rotatePoint = new RoratePoint(this.images['rotate'],new Point(-100,-100))
             //初始化先前画布信息
-            this.components.forEach((item,index)=>{
-                this.rects.push(index,this.images[item.pid],new Point(item.x,item.y),item.width*this.ratio,item.height*this.ratio,item.rotate)
+            if(this.rects.length==0||this.isNew){
+                this.rects = []
+                this.components.forEach((item,index)=>{
+                    this.rects.push(new Rect(index,this.images[item.privateComponentId],new Point(item.x*this.ratio,item.y*this.ratio),this.privateComponents[item.privateComponentId].width*this.ratio,this.privateComponents[item.privateComponentId].height*this.ratio,item.rotate*Math.PI/180,item.privateComponentId))
+                })
+                this.isNew = false
+            }
+            else{
+                this.rects.forEach((item,index)=>{
+                    item.anchor.x=item.anchor.x*this.ratio/oldRatio;
+                    item.anchor.y=item.anchor.y*this.ratio/oldRatio;
+                    item.width = item.width*this.ratio/oldRatio;
+                    item.height = item.height*this.ratio/oldRatio;
+                })
+            }
+            this.$nextTick(()=>{
+                this.ctx.clearRect(0,0,this.canvas.clientWidth+10,this.canvas.clientHeight+10)
+                detectRectsConflict(this.rects)
+                redrawAll(this.ctx,this.canvas,this.rects)
             })
-            redrawAll(this.ctx,this.canvas,this.rects)
+        },
+        initServeCanvas(){
+            this.canvasServe = this.$refs.canvasServe
+            this.ctxServe = this.canvasServe.getContext('2d')
+            this.canvasServe.height = this.canvasServe.clientHeight
             //初始化右侧画布信息
             var k = 0
-			var arr = Object.keys(this.images)
+			var arr = Object.keys(this.images).filter(item=>{return item!="rotate"})
             for(var j=10;j<=500;j+=100){
 				for(var i=10;i<=250;i+=100){
-					this.rectsServe.push(new Rect(k,this.images[arr[k]],new Point(i,j),60,60,0))
+					this.rectsServe.push(new Rect(k,this.images[arr[k]],new Point(i,j),60,60,0,Number(arr[k])))
 					k++
-					if(k===this.imgNum){
+					if(k===this.imgNum-1){
 						redrawAll(this.ctxServe,this.canvasServe,this.rectsServe)
 						return
 					}
 				}
 			}
-            //初始化事件回调函数
-            this.canvas.addEventListener('mousemove',e=>{
-                var mouse = new Point(e.offsetX,e.offsetY)
-                // 安全性检查
-                if(mouse.x<0||mouse.x>=this.canvas.clientWidth||mouse.y<0||mouse.y>=this.canvas.clientHeight)
-                    return
-                // 设置鼠标样式
-                let body = document.querySelector("body")
-                //旋转中鼠标形态不变
-                if(this.canvasInfo.status===canvasStatus.ROTATING){
-                    body.style.cursor= "url(../assets/rotatePointer.svg),auto"
-                }
-                else if(this.canvasInfo.status===canvasStatus.DRAGING)
-                    body.style.cursor= "pointer"
-                else{
-                    if(isPointInRotate(mouse,this.rotatePoint)){
-                        body.style.cursor= "url(../assets/rotatePointer.svg),auto"
-                    }
-                    else if(Number.isFinite(isPointInAnyRect(mouse,this.rects))){
-                        body.style.cursor= "pointer"
-                    }
-                    else{  
-                        body.style.cursor= "default"
-                    }
-                }
-                // 旋转（绘制）
-                if(this.canvasInfo.status===canvasStatus.ROTATING){
-                    var theta = Math.acos((this.rects[this.canvasInfo.targetIndex].anchor.y-mouse.y)/getDistance(this.rects[this.canvasInfo.targetIndex].anchor,mouse))
-                    if(mouse.x-this.rects[this.canvasInfo.targetIndex].anchor.x>0){
-                        this.rects[this.canvasInfo.targetIndex].rotate = theta
-                    }
-                    else{
-                        this.rects[this.canvasInfo.targetIndex].rotate = Math.PI*2-theta
-                    }
-                    this.rects[this.canvasInfo.targetIndex].rotate = Math.round(this.rects[this.canvasInfo.targetIndex].rotate*360/(2*Math.PI)/10)*10*Math.PI/180
-                    console.log(this.rects[this.canvasInfo.targetIndex].rotate);
-                    detectRectsConflict(this.rects)
-                    redrawAll(this.ctx,this.canvas,this.rects,this.rotatePoint)
-                }
-                // 拖拽（死区限制）
-                if(this.canvasInfo.status===canvasStatus.DRAG_START&&getDistance(this.canvasInfo.beginPoint,mouse)>5){
-                    this.canvasInfo.status = canvasStatus.DRAGING
-                    return
-                }
-                // 拖拽（绘制）
-                if(this.canvasInfo.status===canvasStatus.DRAGING){
-                    //鼠标跟踪
-                    var deltaX = mouse.x-this.canvasInfo.currentPoint.x
-                    var deltaY = mouse.y-this.canvasInfo.currentPoint.y
-                    this.rects[this.canvasInfo.targetIndex].anchor.x+=deltaX
-                    this.rects[this.canvasInfo.targetIndex].anchor.y+=deltaY
-                    this.canvasInfo.currentPoint.x = mouse.x
-                    this.canvasInfo.currentPoint.y = mouse.y
-                    //重新绘制
-                    detectRectsConflict(this.rects)
-                    redrawAll(this.ctx,this.canvas,this.rects,this.rotatePoint)
+            //开启尺寸监视，实时修改画布尺寸
+            this.observer = new ResizeObserver(()=>{
+                if(this.canvasServe.height!=this.canvasServe.clientHeight){
+                    this.canvasServe.height = this.canvasServe.clientHeight
+                    redrawAll(this.ctxServe,this.canvasServe,this.rectsServe)
                 }
             })
-            this.canvas.addEventListener('mousedown',e=>{
-                var mouse = new Point(e.offsetX,e.offsetY)
-                console.log(mouse);
+            this.observer.observe(this.canvas)
+        },
+        mainMouseMove(e){
+            if(!this.canvas||!e)
+                return
+            var mouse = new Point(e.offsetX,e.offsetY)
+            // 安全性检查
+            if(mouse.x<0||mouse.x>=this.canvas.clientWidth||mouse.y<0||mouse.y>=this.canvas.clientHeight)
+                return
+            // 设置鼠标样式
+            let body = document.querySelector("body")
+            //旋转中鼠标形态不变
+            if(this.canvasInfo.status===canvasStatus.ROTATING){
+                body.style.cursor= "url(api/imgs/rotatePointer.svg),auto"
+            }
+            else if(this.canvasInfo.status===canvasStatus.DRAGING)
+                body.style.cursor= "pointer"
+            else{
+                if(isPointInRotate(mouse,this.rotatePoint)){
+                    body.style.cursor= "url(api/imgs/rotatePointer.svg),auto"
+                }
+                else if(Number.isFinite(isPointInAnyRect(mouse,this.rects))){
+                    body.style.cursor= "pointer"
+                }
+                else{  
+                    body.style.cursor= "default"
+                }
+            }
+            // 旋转（绘制）
+            if(this.canvasInfo.status===canvasStatus.ROTATING){
+                var theta = Math.acos((this.rects[this.canvasInfo.targetIndex].anchor.y-mouse.y)/getDistance(this.rects[this.canvasInfo.targetIndex].anchor,mouse))
+                if(mouse.x-this.rects[this.canvasInfo.targetIndex].anchor.x>0){
+                    this.rects[this.canvasInfo.targetIndex].rotate = theta
+                }
+                else{
+                    this.rects[this.canvasInfo.targetIndex].rotate = Math.PI*2-theta
+                }
+                this.rects[this.canvasInfo.targetIndex].rotate = Math.round(this.rects[this.canvasInfo.targetIndex].rotate*360/(2*Math.PI)/10)*10*Math.PI/180
+                detectRectsConflict(this.rects)
+                redrawAll(this.ctx,this.canvas,this.rects,this.rotatePoint)
+            }
+            // 拖拽（死区限制）
+            if(this.canvasInfo.status===canvasStatus.DRAG_START&&getDistance(this.canvasInfo.beginPoint,mouse)>5){
+                setRectAbove(this.canvasInfo.targetIndex,this.rects)
+                this.canvasInfo.targetIndex = this.rects.length-1;
+                this.canvasInfo.status = canvasStatus.DRAGING
+                return
+            }
+            // 拖拽（绘制）
+            if(this.canvasInfo.status===canvasStatus.DRAGING){
+                //鼠标跟踪
+                var deltaX = mouse.x-this.canvasInfo.currentPoint.x
+                var deltaY = mouse.y-this.canvasInfo.currentPoint.y
+                this.rects[this.canvasInfo.targetIndex].anchor.x+=deltaX
+                this.rects[this.canvasInfo.targetIndex].anchor.y+=deltaY
+                this.canvasInfo.currentPoint.x = mouse.x
+                this.canvasInfo.currentPoint.y = mouse.y
+                //重新绘制
+                detectRectsConflict(this.rects)
+                redrawAll(this.ctx,this.canvas,this.rects,this.rotatePoint)
+            }
+        },
+        mainMouseDown(e){
+            var mouse = new Point(e.offsetX,e.offsetY)
                 //安全性检查
                 if(mouse.x<0||mouse.x>=this.canvas.clientWidth||mouse.y<0||mouse.y>=this.canvas.clientHeight)
                     return
@@ -381,161 +583,166 @@ export default {
                         targetIndex :null
                     }
                 }
-            })
-            this.canvas.addEventListener("mouseenter",e=>{
-                var mouse = new Point(e.offsetX,e.offsetY)
-                //安全性检查
-                if(mouse.x<0||mouse.x>=this.canvas.clientWidth||mouse.y<0||mouse.y>=this.canvas.clientHeight)
-                    return
-                if(!this.globalRect)
-                    return
-                var rect = this.globalRect.copy()
-                rect.anchor.x = e.offsetX
-                rect.anchor.y = e.offsetY
-                this.rects.push(rect)
-                this.canvasInfo = {
+        },
+        mainMouseUp(e){
+            //判断是选中还是拖拽，如果在死区内就是选中
+            if(this.canvasInfo.status===canvasStatus.DRAG_START){
+                this.rects.forEach((item)=>{
+                    item.isSelected = false
+                })
+                this.rects[this.canvasInfo.targetIndex].isSelected = true
+                setRectAbove(this.canvasInfo.targetIndex,this.rects)
+                redrawAll(this.ctx,this.canvas,this.rects,this.rotatePoint)
+            }
+            this.canvasInfo = {
+                status: canvasStatus.IDLE,
+                beginPoint: null,
+                currentPoint:null,
+                targetIndex :null
+            }
+        },
+        mainMouseLeave(e){
+            if(this.globalRect)
+                this.globalRect = null
+            if(this.canvasInfo.status===canvasStatus.DRAG_START){
+                this.rects.forEach((item)=>{
+                    item.isSelected = false
+                })
+                this.rects[this.canvasInfo.targetIndex].isSelected = true
+                redrawAll(this.ctx,this.canvas,this.rects,this.rotatePoint)
+            }
+            this.canvasInfo = {
+                status: canvasStatus.IDLE,
+                beginPoint: null,
+                currentPoint:null,
+                targetIndex :null
+            }
+        },
+        mainMouseEnter(e){
+            var mouse = new Point(e.offsetX,e.offsetY)
+            if(!this.globalRect)
+                return
+            var rect = this.globalRect
+            rect.anchor.x = e.offsetX
+            rect.anchor.y = e.offsetY
+            rect.width = this.privateComponents[rect.pid].width*this.ratio
+            rect.height = this.privateComponents[rect.pid].height*this.ratio
+            this.rects.push(rect)
+            console.log(rect);
+            console.log(this.rects);
+            this.canvasInfo = {
+                status: canvasStatus.DRAGING,
+                beginPoint: null,
+                currentPoint:{x:e.offsetX,y:e.offsetY},
+                targetIndex :this.rects.length-1
+            }
+        },
+        mainKeyDown(e){
+            console.log(e);
+            if(e.key=="Delete"){
+                this.rects.forEach((item,index)=>{
+                    if(item.isSelected===true){
+                        this.rects.splice(index,1)
+                    }
+                })
+                detectRectsConflict(this.rects)
+                redrawAll(this.ctx,this.canvas,this.rects,this.rotatePoint)
+            }
+        },
+        serverMouseMove(e){
+            var mouse = new Point(e.offsetX,e.offsetY)
+            // 安全性检查
+            if(mouse.x<0||mouse.x>=this.canvasServe.clientWidth||mouse.y<0||mouse.y>=this.canvasServe.clientHeight)
+                return
+            // 设置鼠标样式
+            let body = document.querySelector("body")
+            if(this.canvasServeInfo.status===canvasStatus.DRAGING||Number.isFinite(isPointInAnyRect(mouse,this.rectsServe)))
+                body.style.cursor= "pointer"
+            else
+                body.style.cursor= "default"
+            if(this.canvasServeInfo.status===canvasStatus.DRAGING){
+                //鼠标跟踪
+                var deltaX = mouse.x-this.canvasServeInfo.currentPoint.x
+                var deltaY = mouse.y-this.canvasServeInfo.currentPoint.y
+                this.canvasServeInfo.currentRect.anchor.x+=deltaX
+                this.canvasServeInfo.currentRect.anchor.y+=deltaY
+                this.canvasServeInfo.currentPoint.x = mouse.x
+                this.canvasServeInfo.currentPoint.y = mouse.y
+                //重新绘制
+                redrawAll(this.ctxServe,this.canvasServe,this.rectsServe)
+                this.canvasServeInfo.currentRect.drawAlphaImg(this.ctxServe)
+            }
+        },
+        serverMouseDown(e){
+            var mouse = new Point(e.offsetX,e.offsetY)
+            //安全性检查
+            if(mouse.x<0||mouse.x>=this.canvasServe.clientWidth||mouse.y<0||mouse.y>=this.canvasServe.clientHeight)
+                return
+            var targetIndex = isPointInAnyRect(mouse,this.rectsServe)
+            if(Number.isFinite(targetIndex)){
+                this.canvasServeInfo = {
                     status: canvasStatus.DRAGING,
-                    beginPoint: null,
-                    currentPoint:{x:e.offsetX,y:e.offsetY},
-                    targetIndex :this.rects.length-1
+                    beginPoint: mouse,
+                    currentPoint:mouse,
+                    targetIndex :targetIndex,
+                    currentRect:this.rectsServe[targetIndex].getCopy()
                 }
-            })
-            this.canvas.addEventListener('mouseleave',e=>{
-                if(this.canvasInfo.status===canvasStatus.DRAG_START){
-                    this.rects.forEach((item)=>{
-                        item.isSelected = false
-                    })
-                    this.rects[this.canvasInfo.targetIndex].isSelected = true
-                    redrawAll(this.ctx,this.canvas,this.rects,this.rotatePoint)
-                }
-                this.canvasInfo = {
-                    status: canvasStatus.IDLE,
-                    beginPoint: null,
-                    currentPoint:null,
-                    targetIndex :null
-                }
-            })
-            this.canvas.addEventListener('mouseup',e=>{
-                //判断是选中还是拖拽，如果在死区内就是选中
-                if(this.canvasInfo.status===canvasStatus.DRAG_START){
-                    this.rects.forEach((item)=>{
-                        item.isSelected = false
-                    })
-                    this.rects[this.canvasInfo.targetIndex].isSelected = true
-                    redrawAll(this.ctx,this.canvas,this.rects,this.rotatePoint)
-                }
-                this.canvasInfo = {
-                    status: canvasStatus.IDLE,
-                    beginPoint: null,
-                    currentPoint:null,
-                    targetIndex :null
-                }
-            })
-            this.canvas.addEventListener('keydown',e=>{
-                if(e.key=="Delete"){
-                    this.rects.forEach((item,index)=>{
-                        if(item.isSelected===true){
-                            this.rects.splice(index,1)
+            }
+        },
+        serverMouseUp(e){
+            this.canvasServeInfo = {
+                status: canvasStatus.IDLE,
+                beginPoint: null,
+                currentPoint:null,
+                targetIndex :null,
+                currentRect:null
+            }
+            redrawAll(this.ctxServe,this.canvasServe,this.rectsServe)
+        },
+        serverMouseLeave(e){
+            if(this.canvasServeInfo.status===canvasStatus.DRAGING){
+                this.globalRect = this.canvasServeInfo.currentRect
+            }
+            this.canvasServeInfo = {
+                status: canvasStatus.IDLE,
+                beginPoint: null,
+                currentPoint:null,
+                targetIndex :null,
+                currentRect:null
+            }
+            redrawAll(this.ctxServe,this.canvasServe,this.rectsServe)
+        },
+        containerMouseUp(e){
+            this.globalRect = null;
+        },
+        async loadImages(){
+            await new Promise(resolve=>{
+                var count = 0;
+                for(var src in this.sources){
+                    this.imgNum++;  
+                }  
+                for(let src in this.sources){  
+                    this.images[src] = new Image();
+                    this.images[src].src = "api/"+this.sources[src]; 
+                    this.images[src].onload = ()=>{
+                        if(++count >= this.imgNum){
+                            resolve()
                         }
-                    })
-                    detectRectsConflict(this.rects)
-                    redrawAll(this.ctx,this.canvas,this.rects,this.rotatePoint)
-                }
-            })
-            this.canvasServe.addEventListener('mousemove',e=>{
-                var mouse = new Point(e.offsetX,e.offsetY)
-                // 安全性检查
-                if(mouse.x<0||mouse.x>=this.canvasServe.clientWidth||mouse.y<0||mouse.y>=this.canvasServe.clientHeight)
-                    return
-                // 设置鼠标样式
-                let body = document.querySelector("body")
-                if(this.canvasServeInfo.status===canvasStatus.DRAGING||Number.isFinite(isPointInAnyRect(mouse,this.rectsServe)))
-                    body.style.cursor= "pointer"
-                else
-                    body.style.cursor= "default"
-                if(this.canvasServeInfo.status===canvasStatus.DRAGING){
-                    //鼠标跟踪
-                    var deltaX = mouse.x-this.canvasServeInfo.currentPoint.x
-                    var deltaY = mouse.y-this.canvasServeInfo.currentPoint.y
-                    this.canvasServeInfo.currentRect.anchor.x+=deltaX
-                    this.canvasServeInfo.currentRect.anchor.y+=deltaY
-                    this.canvasServeInfo.currentPoint.x = mouse.x
-                    this.canvasServeInfo.currentPoint.y = mouse.y
-                    //重新绘制
-                    redrawAll(this.ctxServe,this.canvasServe,this.rectsServe)
-                    this.canvasServeInfo.currentRect.drawAlphaImg(this.ctxServe)
-                }
-            })
-            this.canvasServe.addEventListener('mousedown',e=>{
-                var mouse = new Point(e.offsetX,e.offsetY)
-                console.log(mouse);
-                //安全性检查
-                if(mouse.x<0||mouse.x>=this.canvasServe.clientWidth||mouse.y<0||mouse.y>=this.canvasServe.clientHeight)
-                    return
-                var targetIndex = isPointInAnyRect(mouse,this.rectsServe)
-                if(Number.isFinite(targetIndex)){
-                    this.canvasServeInfo = {
-                        status: canvasStatus.DRAGING,
-                        beginPoint: mouse,
-                        currentPoint:mouse,
-                        targetIndex :targetIndex,
-                        currentRect:this.rectsServe[targetIndex].copy()
                     }
                 }
             })
-            this.canvasServe.addEventListener('mouseleave',e=>{
-                if(this.canvasServeInfo.status===canvasStatus.DRAGING){
-                    this.globalRect = this.canvasServeInfo.currentRect
-                }
-                this.canvasServeInfo = {
-                    status: canvasStatus.IDLE,
-                    beginPoint: null,
-                    currentPoint:null,
-                    targetIndex :null,
-                    currentRect:null
-                }
-                redrawAll(this.ctxServe,this.canvasServe,this.rectsServe)
-            })
-            this.canvasServe.addEventListener('mouseup',e=>{
-                this.canvasServeInfo = {
-                    status: canvasStatus.IDLE,
-                    beginPoint: null,
-                    currentPoint:null,
-                    targetIndex :null,
-                    currentRect:null
-                }
-                redrawAll(this.ctxServe,this.canvasServe,this.rectsServe)
-            })
-            this.container.addEventListener('mouseup',e=>{
-                this.globalRect = null
-            })
-
-        },
-        loadImages(callback){
-			var count = 0;
-			for(var src in this.sources){
-				this.imgNum++;  
-			}  
-			for(let src in this.sources){  
-				this.images[src] = new Image();  
-				this.images[src].onload = ()=>{
-					if(++count >= this.imgNum){
-						callback(this.images);
-					}
-				}
-				this.images[src].src = this.sources[src];  
-			}
 		},
-        getPrivateCompoments(){
-            this.$http.get('/layout/pc',{timeout:1000})
+        async getPrivateCompoments(){
+            await this.$http.get('/layout/pc',{timeout:1000})
             .then(res=>{
                 if(res.data.code==1){
-                    this.privateCompoment = res.data.data.privateCompoment
-                    this.privateCompoment.forEach(item => {
-                        this.sources[item.component.pid] = item.component.url
+                    res.data.data.forEach(item => {
+                        this.privateComponents[item.id] = item;
+                    })
+                    Object.values(this.privateComponents).forEach(item => {
+                        this.sources[item.componentImage.id] = item.componentImage.imageUrl
                     });
-                    this.sources['rotate'] = require("@/assets/rotate.svg")
-                    this.loadImages(this.initAllCanvasData)
+                    this.sources['rotate'] = "imgs/rotate.svg"
                 }
                 else{
                     this.$message({
@@ -551,22 +758,20 @@ export default {
                 })
             })
         },
-        getLayoutInfo(buildingName,floorName,areaName){
-            if(buildingName&&floorName&&areaName){
+        //获取给定区域的数据，并且设置当前区域为选中区域
+        getLayoutInfo(buildingName,floorName,name){
+            //获取当前选中区域的区域信息，如果不选中，则后端默认返回一些信息
                 this.$http.get('/layout/info',{timeout:2000,params:{
                     buildingName:buildingName,
                     floorName:floorName,
-                    areaName:areaName
+                    areaName:name
                 }})
                 .then(res=>{
-                    if(res.code==1){
-                        this.areaOld = res.data.data.area
-                        this.areaNew.buildingName = this.areaOld.buildingName
-                        this.areaNew.floorName = this.areaOld.floorName
-                        this.areaNew.areaName = this.areaOld.areaName
-                        this.areaNew.width = this.areaOld.width
-                        this.areaNew.height = this.areaOld.height
+                    if(res.data.code == 1){
+                        // 将获取到的组件信息赋值给components变量
                         this.components = res.data.data.components
+                        this.isNew = true
+                        this.initMainCanvasData()
                     }
                     else{
                         this.$message({
@@ -581,51 +786,28 @@ export default {
                         type:"error"
                     })
                 })
-            }
-            else{
-                this.$http.get('/layout/info',{timeout:3000})
-                .then(res=>{
-                    if(res.code==1){
-                        this.areaOld = res.data.data.area
-                        this.areaNew.buildingName = this.areaOld.buildingName
-                        this.areaNew.floorName = this.areaOld.floorName
-                        this.areaNew.areaName = this.areaOld.areaName
-                        this.areaNew.width = this.areaOld.width
-                        this.areaNew.height = this.areaOld.height
-                        this.components = res.data.data.components
-                    }
-                    else{
-                        this.$message({
-                            message:res.data.msg,
-                            type:"error"
-                        })
-                    }
-                })
-                .catch(()=>{
-                    this.$message({
-                        message:"服务器访问错误",
-                        type:"error"
-                    })
-                })
-            }
         },
-        getAllBuildingsInfo(){
-            this.$http.get('/layout/area').then(res => {
-                if(res.data.code === 1){
-                    this.areas = res.data.data.areas
+        async getAllBuildingsInfo(){
+            //获取所有楼栋信息，在获取时要同步更新buidings数组
+            await this.$http.get('/layout/area').then(res => {
+                if(res.data.code == 1){
+                    this.areas = res.data.data
                     this.areas.forEach((item)=>{
                         if(!this.buildings.includes(item.buildingName))
                             this.buildings.push(item.buildingName)
                     })
                 }
                 else{
-                    this.$message.error(res.data.msg)
+                    throw(res.data.msg)
                 }
-            }).catch(()=>{
-                this.$message.error("服务器访问错误")
-            });
+            })
         },
-        // 一下为尚未实现
+        autoSelectArea(){
+            if(this.areas.length>0){
+                this.area = this.copyArea(this.areas[0])
+                this.syncSetSelects(this.area.buildingName,this.area.floorName,this.area.name)
+            }
+        },
         getWscs(){
             this.$http.get('/layout/wsc').then(res => {
                 if(res.data.code === 1){
@@ -643,26 +825,65 @@ export default {
             });
         },
         addPrivateCompoments(){
-            
+            this.$http.post('layout/pc',{
+                name:this.newPrivateComponent.name,
+                width:this.newPrivateComponent.width,
+                height:this.newPrivateComponent.height,
+                parentId:this.newPrivateComponent.parentId,
+            })
+            .then(res=>{
+                if(res.data.code==1){
+                    this.$message.success('添加成功')
+                    let maxIndex = 0;
+                    this.privateComponents.forEach(item=>{
+                        maxIndex = Math.max(maxIndex,item.id)
+                    })
+                    this.privateComponents[maxIndex+1] = {
+                        id:res.data.data,
+                        name:this.newPrivateComponent.name,
+                        width:this.newPrivateComponent.width,
+                        height:this.newPrivateComponent.height,
+                        componentImage:{
+                            id:this.curComponent.pid,
+                            imageUrl:this.curComponent.imageUrl
+                        }
+                    }
+                }
+                else{
+                    this.$message.error(res.data.msg)
+                }
+            })
+            .catch(()=>{
+                this.$message.error("服务器访问错误")
+            })
         },
         deletePrivateCompoments(){
 
         },
+        // 区域管理
         addArea(){
+            if(this.newArea.buildingName==''||
+            this.newArea.floorName==''||
+            this.newArea.name==''||
+            this.newArea.width==''||
+            this.newArea.height==''){
+                this.$message.error("区域信息不能含空")
+                return
+            }
             this.$http.post('/layout/area',{
-                area:this.new_area
+                buildingName:this.newArea.buildingName,
+                floorName:this.newArea.floorName,
+                name:this.newArea.name,
+                width:this.newArea.width,
+                height:this.newArea.height,
             },{timeout:1000})
             .then(res=>{
                 if(res.data.code==1){
                     this.$message.success('添加成功')
-                    this.areas.push(this.new_area)
-                    this.areas.forEach((item)=>{
-                        if(!this.buildings.includes(item.buildingName))
-                            this.buildings.push(item.buildingName)
-                    })
-                    this.selectRoom = ''
-                    this.selectFloor = ''
-                    this.selectBuilding = ''
+                    //将新添加的区域信息添加到areas数组中
+                    this.areas.push(this.copyArea(this.newArea))
+                    //将新添加的区域信息的楼栋信息添加到buildings数组中
+                    this.resetSelect()
                     this.isAdd = false
                 }
                 else
@@ -675,9 +896,9 @@ export default {
         deleteArea(){
             this.$http.delete('layout/area',{
                 params:{
-                    buildingName:this.areaOld.buildingName,
-                    floorName:this.areaOld.floorName,
-                    areaName:this.areaOld.areaName
+                    buildingName:this.area.buildingName,
+                    floorName:this.area.floorName,
+                    areaName:this.area.name
                 },
                 timeout:1000
             })
@@ -685,9 +906,9 @@ export default {
                 if(res.data.code==1){
                     this.$message.success('删除成功')
                     this.areas.forEach((item,index)=>{
-                        if(item.buildingName== this.areaOld.buildingName&&
-                        item.floorName== this.areaOld.floorName&&
-                        item.areaName== this.areaOld.areaName)
+                        if(item.buildingName== this.area.buildingName&&
+                        item.floorName== this.area.floorName&&
+                        item.name== this.area.name)
                             this.areas.splice(index,1)
                     })
                     this.buildings = []
@@ -698,6 +919,8 @@ export default {
                     this.selectRoom = ''
                     this.selectFloor = ''
                     this.selectBuilding = ''
+                    //清除当前界面的组件信息
+                    this.ctx.clearRect(0,0,this.canvas.clientWidth,this.canvas.clientHeight)
                 }
                 else
                     this.$message.error(res.data.msg)
@@ -707,36 +930,47 @@ export default {
             })
         },
         changeArea(){
+            if(this.volatileArea.buildingName==''||
+            this.volatileArea.floorName==''||
+            this.volatileArea.name==''||
+            this.volatileArea.width==''||
+            this.volatileArea.height==''){
+                this.$message.error("区域信息不能含空")
+                return
+            }
             this.$http.put('/layout/area',{
                 areaOld:{
-                    buildingNameOld:this.areaOld.buildingName,
-                    floorNameOld:this.areaOld.floorName,
-                    areaNameOld:this.areaOld.areaName
+                    buildingName:this.area.buildingName,
+                    floorName:this.area.floorName,
+                    name:this.area.name
                 },
                 areaNew:{
-                    buildingNameNew:this.areaOld.buildingName,
-                    floorNameNew:this.areaOld.floorName,
-                    areaNameNew:this.areaOld.areaName
+                    buildingName:this.volatileArea.buildingName,
+                    floorName:this.volatileArea.floorName,
+                    name:this.volatileArea.name,
+                    width:this.volatileArea.width,
+                    height:this.volatileArea.height
                 },
             },{timeout:1000})
             .then(res=>{
                 if(res.data.code==1){
                     this.$message.success('修改成功')
-                    this.areas.push(this.areaNew)
+                    // areas重新设置
                     this.areas.forEach((item,index)=>{
-                        if(item.buildingName== this.areaOld.buildingName&&
-                        item.floorName== this.areaOld.floorName&&
-                        item.areaName== this.areaOld.areaName)
-                            this.areas.splice(index,1)
+                        if(item.buildingName== this.area.buildingName&&
+                        item.floorName== this.area.floorName&&
+                        item.name== this.area.name)
+                            this.areas.splice(index,1,this.copyArea(this.volatileArea))
                     })
+                    this.area= this.copyArea(this.volatileArea)
+                    this.syncSetSelects(this.area.buildingName,this.area.floorName,this.area.name)
+                    this.resetSelect()
                     this.buildings = []
                     this.areas.forEach((item)=>{
                         if(!this.buildings.includes(item.buildingName))
                             this.buildings.push(item.buildingName)
                     })
-                    this.selectRoom = ''
-                    this.selectFloor = ''
-                    this.selectBuilding = ''
+                    this.initMainCanvasData()
                     this.isChange = false
                 }
                 else
@@ -747,21 +981,50 @@ export default {
             })
         },
         saveCompomentsInstances(){
-
+            this.rects.forEach(item=>{
+                item.x = (item.anchor.x-item.width/2)/this.ratio
+                item.y = (item.anchor.y-item.height/2)/this.ratio
+                item.type = 1
+                item.privateComponentId = item.pid
+                item.rotateTemp = item.rotate
+                item.rotate = Math.round(item.rotate*180/Math.PI)
+            })
+            this.$http.post('/layout/componentInstance',{
+                area:{
+                    buildingName:this.area.buildingName,
+                    floorName:this.area.floorName,
+                    name:this.area.name,
+                },
+                componentInstances:this.rects
+            },{timeout:2000})
+            .then(res=>{
+                if(res.data.code==1){
+                    this.$message.success('保存成功')
+                }
+                else
+                    this.$message.error(res.data.msg)
+            })
+            .catch(()=>{
+                this.$message.error("服务器访问错误")
+            })
+            .finally(()=>{
+                this.rects.forEach(item=>{
+                    item.rotate = item.rotateTemp
+                })
+            })
+        },
+        setVolatileArea(){
+            this.volatileArea = this.copyArea(this.area)
         },
         clearAreaChange(){
-            this.areaNew.buildingName = this.areaOld.buildingName
-            this.areaNew.floorName = this.areaOld.floorName
-            this.areaNew.areaName = this.areaOld.areaName
-            this.areaNew.width = this.areaOld.width
-            this.areaNew.height = this.areaOld.height
+            this.volatileArea = this.copyArea(this.area)
         },
         clearAreaAdd(){
-            this.new_area.areaName=''
-            this.new_area.floorName=''
-            this.new_area.buildingName=''
-            this.new_area.width=''
-            this.new_area.hight=''
+            this.newArea.name=''
+            this.newArea.floorName=''
+            this.newArea.buildingName=''
+            this.newArea.width=''
+            this.newArea.height=''
         },
         addPage() {
             this.isAdd = true
@@ -774,24 +1037,34 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+#layout{
+    -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Chrome/Safari/Opera */
+  -khtml-user-select: none; /* Konqueror */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none;
+  width: 99.5%;
+  height: 100%;
+  display: flex;
+  
+}
 #layoutWindow {
-    position: absolute;
-    top: 32px;
-    left: 231px;
+    width: 100%;
+    height: 100%;
 }
 
 #layoutList {
-    position: absolute;
-    top: 34px;
-    left: 1210px;
-    height: 810px;
+    position: relative;
+    height: 100%;
     width: 330px;
+    margin-left: 10px;
 }
 #layoutHead{
     position:relative;
 }
 #headName{
-    box-sizing:border-box;
+    box-sizing: border-box;
     position: absolute;
     top: 0;
     left:1px;
@@ -866,18 +1139,15 @@ export default {
 }
 #edit {
   position: relative;
-  display: inline-block;
   background-color: white;
-  height: 775px;
+  height: 100%;
   width: 328px;
-  top: 0;
-  left: 0;
   border-radius: 4px;
 }
 #items {
   position: absolute;
   top: 179px;
-  height: 589px;
+  height: calc(100% - 179px);
   overflow-x: hidden;
   overflow-y: scroll;
   background-color: white;
@@ -886,6 +1156,10 @@ export default {
 #items::-webkit-scrollbar {
   display: none;
 }
+#layoutCanvas{
+    width: 328px;
+    height: 100%;
+}
 #empty {
   position: absolute;
   height: 47px;
@@ -893,13 +1167,25 @@ export default {
   background-color: white;
 }
 #mainWindow {
-    position: relative;
-    height: 770px;
-    width: 970px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
     background-color: white;
     border-radius: 4px;
 }
-
+#header{
+    box-sizing: border-box;
+    width: 100%;
+    height: 40px;
+    padding-top: 14px;
+    display: flex;
+    justify-content: space-between;
+}
+#areaItems{
+    display: flex;
+    min-width: 600px;
+}
 /deep/#changeDiv .el-button{
     padding:0;
     margin: 0;
@@ -917,9 +1203,7 @@ export default {
     margin: 0;
 }
 #floorItems {
-    position: absolute;
-    top: 13px;
-    left: 20px;
+    margin-left: 20px;
 }
 .floorInfo {
     display: inline-block;
@@ -966,27 +1250,24 @@ export default {
 }
 
 #refreshDiv {
-    position: absolute;
-    left: 850px;
-    top: 14px;
+    position: relative;
+    right: 20px;
+    top:5px;
 }
 
 #addDiv {
-    position: absolute;
-    left: 500px;
-    top: 12px;
+    position: relative;
+    margin-left: 10px;
 }
 
 #changeDiv {
-    position: absolute;
-    left: 450px;
-    top: 12px;
+    position: relative;
+    margin-left: 10px;
 }
 
 #deleteDiv {
-    position: absolute;
-    left: 550px;
-    top: 12px;
+    position: relative;
+    margin-left: 10px;
 }
 
 .innerSpan {
@@ -999,15 +1280,17 @@ export default {
     color: white;
     pointer-events: none;
 }
-
 #canvasBox {
-    position: absolute;
-    top: 50px;
-    left: 41px;
-    height: 700px;
-    width: 888px;
+    width: 90%;
+    height: calc(100% - 70px);
+    margin-left: 5%;
+    margin-top: 20px;
+    box-sizing: border-box;
     border: 1px solid #C8C9CD;
     border-radius: 4px;
+}
+#canvasBox:focus{
+    outline: none;
 }
 ul>.el-select-dropdown__item{
     padding-left: 12px;

@@ -1,10 +1,9 @@
 <template>
 <div>
     <div id="UserPage">
-        <div id="UserAvatarDiv"><UserAvatarVue/></div>
+        <div id="UserAvatarDiv"><UserAvatarVue @updateUrl="updateUrl" :url="computedUrl"/></div>
         <div id="UsernameTextDiv"><UsernameTextVue :name="userInfo.name" @changeName="saveName" ref="name"/></div>
-        <div id="InfoBoxDiv"><InfoBoxVue v-if="someShow" :userInfo="userInfo" @save="saveInfoBox" ref="infoBox"/></div>
-        <div id="ReservationBoxDiv"><ReservationBoxVue :reservations="reservations" @changeStatus="changeStatus" @renewReservation="renewReservation" @addTeam="searchTeam" @logout="logout"/></div>
+        <div id="InfoBoxDiv"><InfoBoxVue v-if="someShow" :userInfo="userInfo" @save="saveInfoBox" ref="infoBox"/><ReservationBoxVue :inCompany="inCompany" :reservations="reservations" @changeStatus="changeStatus" @renewReservation="renewReservation" @addTeam="searchTeam"/></div>
     </div>
     <el-dialog :visible.sync="isAdd" id="teamDialog" title="我的团队">   
         <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
@@ -77,6 +76,7 @@ import ReservationBoxVue from './ReservationBox.vue'
 import UserAvatarVue from './UserAvatar.vue'
 import UsernameTextVue from './NameText.vue'
 export default {
+    name:"UserPage",
     data(){
         return{
             isAdd:false,
@@ -84,7 +84,7 @@ export default {
             endTime:'18:30',
             teams:null,
             currentEndTime:'',
-            userInfo:null,
+            userInfo:{},
             reservations:[],
             activeIndex:'1',
             newTeamName:'',
@@ -92,104 +92,10 @@ export default {
         }
     },
     mounted(){
-        // var res = {
-        //     data:{
-        //         data:{
-        //             userInfo:{
-        //                 username:'1273698633',
-        //                 name:'爱学习的小白',
-        //                 profile:'往生堂第77代堂主',
-        //                 wid:'51234985',
-        //                 gender:'男',
-        //                 post:'前端工程师',
-        //                 team:'往生堂'
-        //             },
-        //             reservations:[{
-        //                 date:"2022-07-08",
-        //                 startTime:"15:30",
-        //                 endTime:"16:30",
-        //                 workstation:"明学楼2F301",
-        //                 status:"已履约"
-        //             },
-        //             {    
-        //                 date:"2022-07-08",
-        //                 startTime:"15:30",
-        //                 endTime:"18:30",
-        //                 workstation:"明学楼2F301",
-        //                 status:"已履约"
-        //             },
-        //             {
-        //                 date:"2022-07-08",
-        //                 startTime:"15:30",
-        //                 endTime:"18:30",
-        //                 workstation:"明学楼2F301",
-        //                 status:"已履约"
-        //             },
-        //             {    
-        //                 date:"2022-07-08",
-        //                 startTime:"15:30",
-        //                 endTime:"18:30",
-        //                 workstation:"明学楼2F301",
-        //                 status:"已履约"
-        //             },
-        //             {    
-        //                 date:"2022-07-08",
-        //                 startTime:"15:30",
-        //                 endTime:"18:30",
-        //                 workstation:"明学楼2F301",
-        //                 status:"已履约"
-        //             },
-        //             {    
-        //                 date:"2022-07-08",
-        //                 startTime:"15:30",
-        //                 endTime:"18:30",
-        //                 workstation:"明学楼2F301",
-        //                 status:"已履约"
-        //             },
-        //             {    
-        //                 date:"2022-07-08",
-        //                 startTime:"15:30",
-        //                 endTime:"18:30",
-        //                 workstation:"明学楼2F301",
-        //                 status:"已履约"
-        //             },
-        //             {
-        //                 date:"2022-07-08",
-        //                 startTime:"15:30",
-        //                 endTime:"18:30",
-        //                 workstation:"明学楼2F301",
-        //                 status:"已履约"
-        //             },
-        //             {    
-        //                 date:"2022-07-08",
-        //                 startTime:"15:30",
-        //                 endTime:"18:30",
-        //                 workstation:"明学楼2F301",
-        //                 status:"已履约"
-        //             },
-        //             {    
-        //                 date:"2022-07-08",
-        //                 startTime:"15:30",
-        //                 endTime:"18:30",
-        //                 workstation:"明学楼2F301",
-        //                 status:"已履约"
-        //             },
-        //             {    
-        //                 date:"2022-07-08",
-        //                 startTime:"15:30",
-        //                 endTime:"18:30",
-        //                 workstation:"明学楼2F301",
-        //                 status:"已履约"
-        //             }
-        //             ]
-        //         }
-        //     }
-        // }
         this.$http.get('/users/info',{timeout:3000})
         .then(res=>{
             if(res.data.code==1){
                 this.userInfo = res.data.data.userInfo
-                console.log(this.userInfo)
                 this.reservations = res.data.data.reservations
                 this.initReservations();
                 if(this.reservations[0])
@@ -302,6 +208,7 @@ export default {
                         message:"保存成功",
                         type:"success"
                     })
+                    this.$emit('changeName',newName)
                 }
                 else{
                     this.$message({
@@ -353,9 +260,6 @@ export default {
         },
         changeStatus(){
             this.reservations[0].status = '已签到'
-        },
-        logout(){
-            this.$emit('logout')
         },
         searchTeam(){
             this.isAdd = true
@@ -423,8 +327,31 @@ export default {
                     type: 'error'
                 });
             })
+        },
+        updateUrl(url){
+          this.userInfo.url = url
+          this.$emit('changeUrl',url)
         }
     },
+    computed:{
+        computedUrl(){
+            if(this.userInfo.name){
+                if (/[\u4E00-\u9FA5\uFE30-\uFFA0]/.test(this.userInfo.name)&&this.userInfo.name.length>=2) {
+                    return this.userInfo.url==''||!this.userInfo.url?"https://ui-avatars.com/api/?size=512&&font-size=0.33&&background=random&&name="+this.userInfo.name.slice(-2):this.userInfo.url
+                }//包含中文且长度大于等于2
+                return this.userInfo.url==''||!this.userInfo.url?"https://ui-avatars.com/api/?size=512&&font-size=0.33&&background=random&&name="+this.userInfo.name.slice(0,1):this.userInfo.url
+            }
+            else
+                return ''
+        },
+        inCompany(){
+            if(this.userInfo.team!=""&&this.userInfo.team!=undefined&&this.userInfo.team!=null)
+                return true
+            else{
+                return false
+            }
+        }
+  },
     components:{
         InfoBoxVue,
         ReservationBoxVue,
@@ -436,11 +363,9 @@ export default {
 
 <style lang="scss" scoped>
 #UserPage{
-    position: absolute;
-    top: 25px;
-    left: 230px;
-    width: 1310px;
-    height: 832px;
+    width: 100%;
+    height: 100%;
+    min-height: 800px;
     background-color: white;
     border-radius: 5px;
     border-width: 3px;
@@ -459,6 +384,11 @@ export default {
     position:absolute;
     left:26px;
     top: 239px;
+    width: calc(100% - 26px);
+    width:-webkit-calc(100% - 26px);
+    width:-moz-calc(100% - 26px);
+    display: flex;
+    justify-content: start;
 }
 #ReservationBoxDiv{
     position:absolute;
