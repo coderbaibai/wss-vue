@@ -108,6 +108,7 @@ export default {
 		canvasWidth:0,
 		canvasHeight:0,
 		ctx:{},
+    components:[],
 		targetId:-1,
 		rects:[],
 		ratio:0,
@@ -272,6 +273,8 @@ export default {
       })
     },
     getLayoutInfo(buildingName,floorName,name){
+      if(buildingName==null||floorName==null||name==null||buildingName==''||floorName==''||name=='')
+        return
       //获取当前选中区域的区域信息，如果不选中，则后端默认返回一些信息
       this.$http.get('/layout/info',{timeout:2000,params:{
         buildingName:buildingName,
@@ -303,6 +306,8 @@ export default {
       //计算画布大小比例
       this.container = this.$refs.layout
       this.canvas = this.$refs.canvas
+      if(!(this.canvas||this.container))
+        return
       this.ctx = this.canvas.getContext('2d')
       //计算画布大小比例
       this.mainCanvasRedraw()
@@ -323,40 +328,40 @@ export default {
       this.windowObserve.observe(this.$refs.mainWindow)
     },
     mainCanvasRedraw(){
-          var oldRatio = this.ratio
-          this.canvasWidth=this.canvas.clientWidth
-          this.canvasHeight=this.canvas.clientHeight
-          this.ratio = Math.min(this.canvasWidth/this.area.width,this.canvasHeight/this.area.height)
-          if(this.canvasWidth/this.area.width<this.canvasHeight/this.area.height){
-              this.canvasHeight = this.area.height*this.ratio
-              // this.canvas.clientHeight = this.canvasHeight
-          }
-          else{
-              this.canvasWidth = this.area.width*this.ratio
-              // this.canvas.clientWidth = this.canvasWidth
-          }
-          this.isOrigin = false
-          //初始化先前画布信息
-          if(this.rects.length==0||this.isNew){
-              this.rects = []
-              this.components.forEach((item,index)=>{
-                  this.rects.push(new Rect(index,this.images[item.privateComponentId],new Point(item.x*this.ratio,item.y*this.ratio),this.privateComponents[item.privateComponentId].width*this.ratio,this.privateComponents[item.privateComponentId].height*this.ratio,item.rotate*Math.PI/180,item.privateComponentId))
-              })
-          }
-          else{
-              this.rects.forEach((item,index)=>{
-                  item.anchor.x=item.anchor.x*this.ratio/oldRatio;
-                  item.anchor.y=item.anchor.y*this.ratio/oldRatio;
-                  item.width = item.width*this.ratio/oldRatio;
-                  item.height = item.height*this.ratio/oldRatio;
-              })
-          }
-          this.$nextTick(()=>{
-              this.ctx.clearRect(0,0,this.canvas.clientWidth+10,this.canvas.clientHeight+10)
-              detectRectsConflict(this.rects)
-              redrawAll(this.ctx,this.canvas,this.rects)
-              this.loading = false
+      var oldRatio = this.ratio
+      this.canvasWidth=this.canvas.clientWidth
+      this.canvasHeight=this.canvas.clientHeight
+      this.ratio = Math.min(this.canvasWidth/this.area.width,this.canvasHeight/this.area.height)
+      if(this.canvasWidth/this.area.width<this.canvasHeight/this.area.height){
+          this.canvasHeight = this.area.height*this.ratio
+          // this.canvas.clientHeight = this.canvasHeight
+      }
+      else{
+          this.canvasWidth = this.area.width*this.ratio
+          // this.canvas.clientWidth = this.canvasWidth
+      }
+      this.isOrigin = false
+      //初始化先前画布信息
+      if(this.rects.length==0||this.isNew){
+          this.rects = []
+          this.components.forEach((item,index)=>{
+              this.rects.push(new Rect(index,this.images[this.privateComponents[item.privateComponentId].componentImage.id],new Point(item.x*this.ratio,item.y*this.ratio),this.privateComponents[item.privateComponentId].width*this.ratio,this.privateComponents[item.privateComponentId].height*this.ratio,item.rotate*Math.PI/180,item.privateComponentId))
           })
+      }
+      else{
+          this.rects.forEach((item,index)=>{
+              item.anchor.x=item.anchor.x*this.ratio/oldRatio;
+              item.anchor.y=item.anchor.y*this.ratio/oldRatio;
+              item.width = item.width*this.ratio/oldRatio;
+              item.height = item.height*this.ratio/oldRatio;
+          })
+      }
+      this.$nextTick(()=>{
+          this.ctx.clearRect(0,0,this.canvas.clientWidth+10,this.canvas.clientHeight+10)
+          detectRectsConflict(this.rects)
+          redrawAll(this.ctx,this.canvas,this.rects)
+          this.loading = false
+      })
     },
     mainMouseDown(e){
       var mouse = new Point(e.offsetX,e.offsetY)
@@ -367,6 +372,7 @@ export default {
       if(Number.isFinite(targetIndex)){
         this.targetId = this.rects[targetIndex].id
         this.rects[targetIndex].isSelected = true
+        this.$emit('reserve',this.area,this.changeIdIntoSid(this.rects[targetIndex].id+1))
       }
       //判断是选中还是拖拽，如果在死区内就是选中
       redrawAll(this.ctx,this.canvas,this.rects)
@@ -391,13 +397,20 @@ export default {
       this.items = this.$refs.items
       this.header = this.$refs.header
       this.headerObserve = new ResizeObserver(()=>{
-        console.log(this.$refs.header.clientWidth)
         if(this.header.clientWidth<960)
           this.isInfoShow = false
         else
           this.isInfoShow = true
       })
       this.headerObserve.observe(this.$refs.header)
+    },
+    changeIdIntoSid(id){
+      var target = id+''
+      var len = target.length
+      for(let i=0;i<3-len;i++){
+        target = '0'+target
+      }
+      return target
     }
   },
   async created(){
@@ -435,12 +448,9 @@ export default {
     width: calc(100% - 90px);
     // min-width: 920px;
 }
-#infoItems{
-  // width: 470px;
-}
 #floorItems{
   margin-left: 10px;
-  width: 420px;
+  min-width: 420px;
 }
 .infoItem {
   display: inline-block;

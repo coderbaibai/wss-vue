@@ -805,7 +805,6 @@ export default {
 #teamPage {
   width: 100%;
   height: 100%;
-  min-height: 840px;
   background-color: white; 
   border-radius: 5px;
   border-width: 3px;

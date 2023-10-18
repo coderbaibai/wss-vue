@@ -118,6 +118,8 @@ export default {
     methods:{
         initReservations(){
             this.reservations.forEach(item=>{
+                if(item.endTime=="00:00")
+                    item.endTime = "24:00"
                 item.druation = item.date+' '+item.startTime+'-'+item.endTime
                 item.status = this.transStatus(item.status)
             })
@@ -133,7 +135,7 @@ export default {
                 case 3:
                     return '已违约'
                 case 4:
-                    return '已取消'
+                    return '已结束'
             }
         },
         handleSelect(key){
@@ -258,8 +260,8 @@ export default {
                     this.isRenew = false
                 })
         },
-        changeStatus(){
-            this.reservations[0].status = '已签到'
+        changeStatus(e){
+            this.reservations[0].status = this.transStatus(e)
         },
         searchTeam(){
             this.isAdd = true

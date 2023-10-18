@@ -23,7 +23,7 @@
 	  </div>
 	</div>
 	<div id="bottomItems">
-	  <el-table :data="reservations" height="470" stripe style="width: 100%">
+	  <el-table :data="reservations" :row-class-name="tableRowClassName" height="470" stripe style="width: 100%">
 		<el-table-column prop="workstation" label="地点" width="220">
 		</el-table-column>
 		<el-table-column prop="druation" label="预约时间" width="400">
@@ -38,72 +38,19 @@
 export default {
   data() {
 	return {
-	  isFocus:false,
-	  tableData: [
-		{
-		  place: "明学楼2F301",
-		  druation: "2020-12-12 12:00-18:00",
-		  status: "已履约",
-		},
-		{
-		  place: "明学楼2F301",
-		  druation: "2020-12-12 12:00-18:00",
-		  status: "已履约",
-		},
-		{
-		  place: "明学楼2F301",
-		  druation: "2020-12-12 12:00-18:00",
-		  status: "已履约",
-		},
-		{
-		  place: "明学楼2F301",
-		  druation: "2020-12-12 12:00-18:00",
-		  status: "已履约",
-		},
-		{
-		  place: "明学楼2F301",
-		  druation: "2020-12-12 12:00-18:00",
-		  status: "已履约",
-		},
-		{
-		  place: "明学楼2F301",
-		  druation: "2020-12-12 12:00-18:00",
-		  status: "已履约",
-		},
-		{
-		  place: "明学楼2F301",
-		  druation: "2020-12-12 12:00-18:00",
-		  status: "已履约",
-		},
-		{
-		  place: "明学楼2F301",
-		  druation: "2020-12-12 12:00-18:00",
-		  status: "已履约",
-		},
-		{
-		  place: "明学楼2F301",
-		  druation: "2020-12-12 12:00-18:00",
-		  status: "已履约",
-		},
-		{
-		  place: "明学楼2F301",
-		  druation: "2020-12-12 12:00-18:00",
-		  status: "已履约",
-		},
-		{
-		  place: "明学楼2F301",
-		  druation: "2020-12-12 12:00-18:00",
-		  status: "已履约",
-		},
-		{
-		  place: "明学楼2F301",
-		  druation: "2020-12-12 12:00-18:00",
-		  status: "已履约",
-		},
-	  ],
+	  isFocus:false
 	};
   },
   methods:{
+	tableRowClassName({row, rowIndex}) {
+	if (row.status=='已预约') {
+		return 'warning-row';
+	}
+	if (row.status=='进行中') {
+		return 'success-row';
+	}
+	return '';
+	},
 	addTeam(){
 	  this.$emit('addTeam')
 	},
@@ -115,7 +62,7 @@ export default {
 			message: '签到成功',
 			type: 'success'
 		  });
-		  this.$emit('changeStatus')
+		  this.$emit('changeStatus',1)
 		}
 		else{
 		  this.$message({
@@ -159,6 +106,7 @@ export default {
 					message: '已结束使用',
 					type: 'success'
 				});
+				this.$emit('changeStatus',4)
 			}
 			else{
 				this.$message({
@@ -199,6 +147,12 @@ export default {
 * {
   margin: 0;
   padding: 0;
+}
+/deep/.el-table .warning-row {
+	background: oldlace;
+}
+/deep/.el-table .success-row {
+	background: #f0f9eb;
 }
 .focusHighlight{
   color: #409eff !important ;

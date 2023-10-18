@@ -294,7 +294,7 @@ export default {
   overflow-x: hidden;
   /* background-color: white; */
   width: 100%;
-  height: 835px;
+  height: 100%;
   border-radius: 5px;
   position: relative;
 }

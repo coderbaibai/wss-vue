@@ -2,9 +2,7 @@
     <div v-loading="loading" style="width:100%;height:100%;position:relative">
         <BasePageVue :name="name" :url="url" v-if="isManager&&!loading"/>
         <CommonBasePageVue :name="name" :url="url" v-if="!isManager&&!loading"/>
-        <keep-alive :include="['UserPage','TeamPage','ReservationPage']">
-            <router-view id="kmain" @changeName="changeName" @changeUrl="changeUrl"></router-view>
-        </keep-alive>
+        <router-view id="kmain" @changeName="changeName" @changeUrl="changeUrl"></router-view>
     </div>
 </template>
 
@@ -67,8 +65,7 @@ export default {
         CommonBasePageVue
     }
 }
-</script>
-
+</script>                                                               
 <style scoped>
 #kmain{
     position:absolute; 
@@ -79,6 +76,6 @@ export default {
     width:-moz-calc(100% - 230px);
     height: calc(100% - 70px);
     height: -webkit-calc(100% - 70px);
-    height: -moz-calc(100% - 70px);
+    height: -moz-calc(100% - 70px); 
 }
 </style>
