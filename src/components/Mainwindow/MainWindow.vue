@@ -192,16 +192,16 @@ export default {
     }
   },
   computed:{
-	canvasStyle(){
-		if(this.isOrigin)
-			return null
-		else{
-			return {
-				height:this.canvasHeight+'px',
-				width:this.canvasWidth+'px'
-			}
-		}
-	}
+    canvasStyle(){
+      if(this.isOrigin)
+        return null
+      else{
+        return {
+          height:this.canvasHeight+'px',
+          width:this.canvasWidth+'px'
+        }
+      }
+    }
   },
   methods: {
     copyArea(area) {
@@ -345,7 +345,7 @@ export default {
       if(this.rects.length==0||this.isNew){
           this.rects = []
           this.components.forEach((item,index)=>{
-              this.rects.push(new Rect(index,this.images[this.privateComponents[item.privateComponentId].componentImage.id],new Point(item.x*this.ratio,item.y*this.ratio),this.privateComponents[item.privateComponentId].width*this.ratio,this.privateComponents[item.privateComponentId].height*this.ratio,item.rotate*Math.PI/180,item.privateComponentId))
+              this.rects.push(new Rect(index,this.images[this.privateComponents[item.privateComponentId].componentImage.id],new Point(item.x*this.ratio,item.y*this.ratio),this.privateComponents[item.privateComponentId].width*this.ratio,this.privateComponents[item.privateComponentId].height*this.ratio,item.rotate*Math.PI/180,item.privateComponentId,item.sid,item.status))
           })
       }
       else{
@@ -359,7 +359,7 @@ export default {
       this.$nextTick(()=>{
           this.ctx.clearRect(0,0,this.canvas.clientWidth+10,this.canvas.clientHeight+10)
           detectRectsConflict(this.rects)
-          redrawAll(this.ctx,this.canvas,this.rects)
+          redrawAll(this.ctx,this.canvas,this.rects,null,true)
           this.loading = false
       })
     },
@@ -375,7 +375,7 @@ export default {
         this.$emit('reserve',this.area,this.changeIdIntoSid(this.rects[targetIndex].id+1))
       }
       //判断是选中还是拖拽，如果在死区内就是选中
-      redrawAll(this.ctx,this.canvas,this.rects)
+      redrawAll(this.ctx,this.canvas,this.rects,null,true)
     },
     mainMouseMove(e){
       var mouse = new Point(e.offsetX,e.offsetY)
@@ -411,6 +411,11 @@ export default {
         target = '0'+target
       }
       return target
+    },
+    publishSeatsInfo(){
+      let infos = [0,0,0,0,0];
+      this.components
+      this.$emit("seatsInfo");
     }
   },
   async created(){

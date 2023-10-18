@@ -16,11 +16,11 @@ export const Middle = {
     middleBottom:2,
     middleRight:3
 }
-export var redrawAll = function(ctx,canvas,rects,rotatePoint){
+export var redrawAll = function(ctx,canvas,rects,rotatePoint,isWordsShow){
     ctx.clearRect(0,0,canvas.clientWidth+10,canvas.clientHeight+10)
     var index = -1;
     for(var i=0;i<rects.length;i++){
-        rects[i].draw(ctx)
+        rects[i].draw(ctx,isWordsShow)
         if(rects[i].isSelected)
             index = i
     }
@@ -61,7 +61,7 @@ export function RoratePoint(image,point){
         this.anchor.y = (leftTop.y+rightTop.y)/2 - this.distance*Math.cos(Rect.rotate)
     }
 }
-export function Rect(id,image,point,width,height,rotate,pid){
+export function Rect(id,image,point,width,height,rotate,pid,sid,status){
     this.id = id
     this.pid = pid
     this.image = image
@@ -72,15 +72,17 @@ export function Rect(id,image,point,width,height,rotate,pid){
     this.radius = Math.sqrt((width/2)**2+(height/2)**2)
     this.isSelected = false
     this.isConflict = false
+    this.sid = sid
+    this.status = status
     this.getCopy = ()=>{
-        return new Rect(this.id,this.image,new Point(this.anchor.x-width/2,this.anchor.y-height/2),this.width,this.height,this.rotate,this.pid)
+        return new Rect(this.id,this.image,new Point(this.anchor.x-width/2,this.anchor.y-height/2),this.width,this.height,this.rotate,this.pid,this.sid)
     }
-    this.draw = function(ctx){
-        this.drawImg(ctx)
+    this.draw = function(ctx,isWordsShow){
+        this.drawImg(ctx,isWordsShow)
         if(this.isSelected)
-            this.drawStrokeSelected(ctx)
+            this.drawStrokeSelected(ctx,isWordsShow)
         else if(this.isConflict)
-            this.drawStrokeConflict(ctx)
+            this.drawStrokeConflict(ctx,isWordsShow)
     }
     this.copy = function(){
         return new Rect(null,this.image,{x:this.anchor.x-width/2,y:this.anchor.y-height/2},this.width,this.height,this.rotate)
@@ -92,7 +94,7 @@ export function Rect(id,image,point,width,height,rotate,pid){
         ctx.strokeRect(-this.width/2,-this.height/2,this.width,this.height)
         ctx.restore()
     }
-    this.drawStrokeConflict = function(ctx){
+    this.drawStrokeConflict = function(ctx,isWordsShow){
         ctx.save()
         ctx.translate(this.anchor.x,this.anchor.y)
         ctx.rotate(this.rotate)
@@ -100,7 +102,7 @@ export function Rect(id,image,point,width,height,rotate,pid){
         ctx.strokeRect(-this.width/2,-this.height/2,this.width,this.height)
         ctx.restore()
     }
-    this.drawStrokeSelected = function(ctx){
+    this.drawStrokeSelected = function(ctx,isWordsShow){
         ctx.save()
         ctx.translate(this.anchor.x,this.anchor.y)
         ctx.rotate(this.rotate)
@@ -124,11 +126,27 @@ export function Rect(id,image,point,width,height,rotate,pid){
         ctx.clearRect(-this.width/2,-this.height/2,this.width,this.height)
         ctx.restore()
     }
-    this.drawImg = function(ctx){
+    this.drawImg = function(ctx,isWordsShow){
         ctx.save()
         ctx.translate(this.anchor.x,this.anchor.y)
         ctx.rotate(this.rotate)
         ctx.drawImage(this.image,-this.width/2,-this.height/2,this.width,this.height)
+        if(isWordsShow===true&&this.sid){
+            const color = getColorFromStatus(this.status)
+            if(color){
+                ctx.save()
+                ctx.fillStyle = color
+                ctx.fillRect(1-this.width/2,1-this.height/2,this.width-1,this.height-1)
+                ctx.restore()
+            }
+            ctx.rotate(-this.rotate)
+            const fontSize = this.width*5/12;
+            ctx.font = `${fontSize}px PingFang HK`
+            ctx.fillStyle = 'black'
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(this.sid,0,0);
+        }
         ctx.restore()
     }
     this.drawAlphaImg = function(ctx){
@@ -290,4 +308,18 @@ export function checkCross(p1,p2,p3,p4){
 export function setRectAbove(index,rects){
     rects.push(rects[index]);
     rects.splice(index,1)
+}
+export function getColorFromStatus(status){
+    switch (status) {
+        case 0:
+            return false;
+        case 1:
+            return `rgb(61, 204, 15)`;
+        case 2:
+            return `rgb(52, 168, 238)`;
+        case 3:
+            return `rgb(251, 205, 22)`;
+        case 4:
+            return `rgb(249, 22, 11)`;
+    }
 }

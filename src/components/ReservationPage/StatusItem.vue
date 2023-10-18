@@ -49,7 +49,6 @@
 export default {
 	data(){
 		return{
-			statusNumber:128
 		}
 	},
     props:{
@@ -57,7 +56,8 @@ export default {
         free:Boolean,
         reserved:Boolean,
 		allocated:Boolean,
-		error:Boolean
+		error:Boolean,
+		statusNumber:Number
     }
 }
 </script>

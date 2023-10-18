@@ -4,19 +4,19 @@
       <div id="mainWindow">
         <div id="statusItems">
           <div class="statusItem">
-            <StatusItemVue busy />
+            <StatusItemVue busy :statusNumber="busyNumber"/>
           </div>
           <div class="statusItem">
-            <StatusItemVue free />
+            <StatusItemVue free :statusNumber="freeNumber"/>
           </div>
           <div class="statusItem">
-            <StatusItemVue reserved />
+            <StatusItemVue reserved :statusNumber="reservedNumber"/>
           </div>
           <div class="statusItem">
-            <StatusItemVue allocated />
+            <StatusItemVue allocated :statusNumber="allowcatedNumber"/>
           </div>
           <div class="statusItem" style="margin-right: 0">
-            <StatusItemVue error />
+            <StatusItemVue error :statusNumber="errorNumber"/>
           </div>
         </div>
         <div id="mw">
@@ -115,6 +115,11 @@ export default {
       startPieces: [],
       endPieces: [],
       selectableEnd: [],
+      busyNumber:0,
+      freeNumber:0,
+      reservedNumber:0,
+      allowcatedNumber:0,
+      errorNumber:0,
     };
   },
   components: {
@@ -124,6 +129,7 @@ export default {
   },
   mounted() {
     this.getAllAreas();
+    this.getAllInfo();
   },
   methods: {
     reserveWorkPlace(area, sid) {
@@ -183,7 +189,25 @@ export default {
           }
         })
         .catch(() => {
-          this.$message("服务器访问异常");
+          this.$message.error("服务器访问异常");
+        });
+    },
+    getAllInfo(){
+      this.$http
+        .get("/reservations/info", { timeout: 2000 })
+        .then((res) => {
+          if (res.data.code == 1) {
+            this.busyNumber = res.data.data.busyNumber;
+            this.freeNumber = res.data.data.freeNumber;
+            this.reservedNumber = res.data.data.reservedNumber;
+            this.allowcatedNumber = res.data.data.allowcatedNumber;
+            this.errorNumber = res.data.data.errorNumber;
+          } else {
+            this.$message.error(res.data.msg);
+          }
+        })
+        .catch(() => {
+          this.$message.error("服务器访问异常");
         });
     },
     spliceTokenToPieces(token) {
