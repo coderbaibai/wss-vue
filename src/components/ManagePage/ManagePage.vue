@@ -2,14 +2,14 @@
 <div>
 <div id="app">
     <div id="mainWindow">
-      <MainWindowVue :areas="areas"/>
+      <MainWindowVue :areas="areas" @changeArea="changeArea"/>
     </div>
     <div id="edl">
       <EditList
-        :itemInfos="itemInfos"
         :emps="emps"
         :posts="posts"
         :areas="areas"
+        :curArea="curArea"
       ></EditList>
     </div>
   </div>
@@ -20,70 +20,15 @@
 import EditList from "../EditList/EditList.vue";
 import MainWindowVue from '../Mainwindow/MainWindow.vue';
 export default {
-  name: "ManagePage",
-  data() {
-    return {
-      itemInfos: [
-        {
-          name: "张三",
-          url: "../assets/round_people.png",
-          wid: 2367181912,
-          sid: "A401",
-          post: "高级开发工程师",
-          begin: "2023-3-01",
-          end: "2023-3-01",
-        },
-        {
-          name: "张三",
-          url: "../assets/round_people.png",
-          wid: 2367181912,
-          sid: "A401",
-          post: "高级开发工程师",
-          begin: "2023-3-01",
-          end: "2023-3-01",
-        },
-        {
-          name: "张三",
-          url: "../assets/round_people.png",
-          wid: 2367181912,
-          sid: "A401",
-          post: "高级开发工程师",
-          begin: "2023-3-01",
-          end: "2023-3-01",
-        },
-        {
-          name: "张三",
-          url: "../assets/round_people.png",
-          wid: 2367181912,
-          sid: "A401",
-          post: "高级开发工程师",
-          begin: "2023-3-01",
-          end: "2023-3-01",
-        },
-        {
-          name: "张三",
-          url: "../assets/round_people.png",
-          wid: 2367181912,
-          sid: "A401",
-          post: "高级开发工程师",
-          begin: "2023-3-01",
-          end: "2023-3-01",
-        },
-        {
-          name: "张三",
-          url: "../assets/round_people.png",
-          wid: 2367181912,
-          sid: "A401",
-          post: "高级开发工程师",
-          begin: "2023-3-01",
-          end: "2023-3-01",
-        },
-      ],
-      emps: [],
-      posts: ["高级开发工程师", "中级开发工程师", "初级开发工程师"],
-      areas:[]
-    };
+  data(){
+    return{
+      areas:[],
+      emps:[],
+      posts:[],
+      curArea:{},
+    }
   },
+  name: "ManagePage",
   components: {
     EditList,
     MainWindowVue
@@ -107,6 +52,9 @@ export default {
       .catch(()=>{
         this.$message("服务器访问异常")
       })
+    },
+    changeArea(area){
+      this.curArea = area
     }
   }
 };

@@ -69,7 +69,7 @@ export default {
     width: 200px;
 }
 #formDiv{
-    height: 900px;
+    height: 100%;
     position: relative;
     /* 加载背景图 */
     background-image: url(../../assets/startBackground.png);

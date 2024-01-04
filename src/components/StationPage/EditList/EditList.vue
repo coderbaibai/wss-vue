@@ -86,7 +86,7 @@ export default {
 }
 #head{
     width: 100%;
-    min-height: 210px;
+    min-height: 140px;
 }
 #items{
     position:relative;

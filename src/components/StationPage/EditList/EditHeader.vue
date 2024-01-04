@@ -33,44 +33,6 @@
         </el-option>
       </el-select>
     </div>
-    <div class="serchInfo">
-      <p>员工姓名:</p>
-      <el-select
-        size="small"
-        class="selectText"
-        v-model="emp"
-        clearable
-        filterable
-        placeholder="请选择"
-      >
-        <el-option
-          v-for="(item, index) in emps"
-          :key="index"
-          :label="item"
-          :value="item"
-        >
-        </el-option>
-      </el-select>
-    </div>
-    <div class="serchInfo">
-      <p>员工职位:</p>
-      <el-select
-        size="small"
-        class="selectText"
-        v-model="post"
-        clearable
-        filterable
-        placeholder="请选择"
-      >
-        <el-option
-          v-for="(item, index) in posts"
-          :key="index"
-          :label="item"
-          :value="item"
-        >
-        </el-option>
-      </el-select>
-    </div>
   </div>
 </template>
 

@@ -125,25 +125,37 @@
           <div id="head">
             <div id="layoutHead">
               <div id="headName">元件列表</div>
-              <div id="editItem">
-                <img src="../../assets/seat.svg" />
-                <h1>明学楼F5-519-001</h1>
+              <div class="editItem" v-if="!isAnySelected">
+                <img src="../../assets/district.svg" />
+                <h1>{{area.buildingName}}{{area.floorName}}{{area.name}}</h1>
                 <p>
-                  父元件：IKEA家具真皮沙发<br />
-                  长度：30cm &nbsp;&nbsp;&nbsp;宽度：60cm<br />
+                  组件数量：&nbsp;&nbsp;{{rects.length}}<br />
+                  长度：{{area.width}}cm &nbsp;&nbsp;&nbsp;宽度：{{area.height}}cm<br />
+                  <strong style="font-size:25px">点击组件以查看详细</strong>
+                </p>
+              </div>
+              <div class="editItem" v-else>
+                <img src="../../assets/seat.svg" />
+                <h1>{{area.buildingName}}{{area.floorName}}{{area.name}}</h1>
+                <p>
+                  父元件：{{privateComponents[detailObj.pid].name}}<br />
+                  长度：{{privateComponents[detailObj.pid].width}}cm &nbsp;&nbsp;&nbsp;宽度：{{privateComponents[detailObj.pid].height}}cm<br />
                   x轴坐标：&nbsp;&nbsp;<input
                     type="text"
                     style="position: relative; left: 0.5px"
                     class="lineInput"
+                    v-model.number="detailObj.anchor.x"
                   /><br />
                   y轴坐标：&nbsp;&nbsp;<input
                     type="text"
                     class="lineInput"
+                    v-model.number="detailObj.anchor.y"
                   /><br />
                   旋转角度：<input
                     type="text"
                     style="position: relative; left: 1.8px"
                     class="lineInput"
+                    v-model.number="detailObj.rotate"
                   /><br />
                 </p>
               </div>
@@ -215,12 +227,12 @@
           <el-row :gutter="10" type="flex" justify="start">
             <el-form-item label="长度">
               <el-input v-model.number.trim="volatileArea.width"
-                ><template slot="append">米</template></el-input
+                ><template slot="append">厘米</template></el-input
               >
             </el-form-item>
             <el-form-item label="宽度">
               <el-input v-model.number.trim="volatileArea.height"
-                ><template slot="append">米</template></el-input
+                ><template slot="append">厘米</template></el-input
               >
             </el-form-item>
           </el-row>
@@ -262,14 +274,14 @@
               <el-input
                 v-model.number.trim="newArea.width"
                 placeholder="请输入长度"
-                ><template slot="append">米</template></el-input
+                ><template slot="append">厘米</template></el-input
               >
             </el-form-item>
             <el-form-item label="区域宽">
               <el-input
                 v-model.number.trim="newArea.height"
                 placeholder="请输入宽度"
-                ><template slot="append">米</template></el-input
+                ><template slot="append">厘米</template></el-input
               >
             </el-form-item>
           </el-row>
@@ -294,14 +306,14 @@
               <el-input
                 v-model.number.trim="newPrivateComponent.width"
                 placeholder="请输入长度"
-                ><template slot="append">米</template></el-input
+                ><template slot="append">厘米</template></el-input
               >
             </el-form-item>
             <el-form-item label="组件宽">
               <el-input
                 v-model.number.trim="newPrivateComponent.height"
                 placeholder="请输入宽度"
-                ><template slot="append">米</template></el-input
+                ><template slot="append">厘米</template></el-input
               >
             </el-form-item>
           </el-row>
@@ -333,7 +345,7 @@
                 v-model.number.trim="originalPrivateComponent.width"
                 placeholder="请输入长度"
                 disabled
-                ><template slot="append">米</template></el-input
+                ><template slot="append">厘米</template></el-input
               >
             </el-form-item>
             <el-form-item label="组件宽">
@@ -341,7 +353,7 @@
                 v-model.number.trim="originalPrivateComponent.height"
                 placeholder="请输入宽度"
                 disabled
-                ><template slot="append">米</template></el-input
+                ><template slot="append">厘米</template></el-input
               >
             </el-form-item>
           </el-row>
@@ -362,14 +374,14 @@
               <el-input
                 v-model.number.trim="volatilePrivateComponent.width"
                 placeholder="请输入长度"
-                ><template slot="append">米</template></el-input
+                ><template slot="append">厘米</template></el-input
               >
             </el-form-item>
             <el-form-item label="组件宽">
               <el-input
                 v-model.number.trim="volatilePrivateComponent.height"
                 placeholder="请输入宽度"
-                ><template slot="append">米</template></el-input
+                ><template slot="append">厘米</template></el-input
               >
             </el-form-item>
           </el-row>
@@ -382,6 +394,47 @@
             >修改</el-button
           >
           <el-button @click="isPcChange = false">取消</el-button>
+        </div>
+      </el-dialog>
+      <el-dialog
+        @closed="clearImgChange"
+        title="从组件库中添加"
+        :visible.sync="isAddImg"
+        width="600px">
+        <div id="imgOuter">
+          <div class="imgLine">
+            <div class="imgInner"><img-item-vue @changeChosens="changeChosens" :source="getWscUrl(0)" :isChosen="getWscBool(0)"></img-item-vue></div>
+            <div class="imgInner"><img-item-vue @changeChosens="changeChosens" :source="getWscUrl(1)" :isChosen="getWscBool(1)"></img-item-vue></div>
+            <div class="imgInner"><img-item-vue @changeChosens="changeChosens" :source="getWscUrl(2)" :isChosen="getWscBool(2)"></img-item-vue></div>
+            <div class="imgInner"><img-item-vue @changeChosens="changeChosens" :source="getWscUrl(3)" :isChosen="getWscBool(3)"></img-item-vue></div>
+          </div>
+          <div class="imgLine">
+            <div class="imgInner"><img-item-vue @changeChosens="changeChosens" :source="getWscUrl(4)" :isChosen="getWscBool(4)"></img-item-vue></div>
+            <div class="imgInner"><img-item-vue @changeChosens="changeChosens" :source="getWscUrl(5)" :isChosen="getWscBool(5)"></img-item-vue></div>
+            <div class="imgInner"><img-item-vue @changeChosens="changeChosens" :source="getWscUrl(6)" :isChosen="getWscBool(6)"></img-item-vue></div>
+            <div class="imgInner"><img-item-vue @changeChosens="changeChosens" :source="getWscUrl(7)" :isChosen="getWscBool(7)"></img-item-vue></div>
+          </div>
+          <div class="imgLine">
+            <div class="imgInner"><img-item-vue @changeChosens="changeChosens" :source="getWscUrl(8)" :isChosen="getWscBool(8)"></img-item-vue></div>
+            <div class="imgInner"><img-item-vue @changeChosens="changeChosens" :source="getWscUrl(9)" :isChosen="getWscBool(9)"></img-item-vue></div>
+            <div class="imgInner"><img-item-vue @changeChosens="changeChosens" :source="getWscUrl(10)" :isChosen="getWscBool(10)"></img-item-vue></div>
+            <div class="imgInner"><img-item-vue @changeChosens="changeChosens" :source="getWscUrl(11)" :isChosen="getWscBool(11)"></img-item-vue></div>
+          </div>
+          <div class="imgLine">
+            <div class="imgInner"><img-item-vue @changeChosens="changeChosens" :source="getWscUrl(12)" :isChosen="getWscBool(12)"></img-item-vue></div>
+            <div class="imgInner"><img-item-vue @changeChosens="changeChosens" :source="getWscUrl(13)" :isChosen="getWscBool(13)"></img-item-vue></div>
+            <div class="imgInner"><img-item-vue @changeChosens="changeChosens" :source="getWscUrl(14)" :isChosen="getWscBool(14)"></img-item-vue></div>
+            <div class="imgInner"><img-item-vue @changeChosens="changeChosens" :source="getWscUrl(15)" :isChosen="getWscBool(15)"></img-item-vue></div>
+          </div>
+        </div>
+        <div slot="footer">
+            <el-button
+              @click="changeImgs"
+              :disabled="!isAddImgChange"
+              type="primary"
+              >添加</el-button
+            >
+            <el-button @click="isAddImg = false">取消</el-button>
         </div>
       </el-dialog>
       <RightMenuVue
@@ -413,10 +466,12 @@ import {
   detectRectsConflict,
 } from "../../canvas/domain.js";
 import RightMenuVue from "../Menu/RightMenu.vue";
+import ImgItemVue from './ImgItem.vue';
 export default {
   name: "LayoutPage",
   components: {
     RightMenuVue,
+    ImgItemVue
   },
   data() {
     return {
@@ -516,7 +571,6 @@ export default {
       container: null,
       globalRect: null,
       // 侧边栏数据
-      wscs: null,
       observer: {},
       windowObserve: {},
       isOrigin: true,
@@ -524,7 +578,13 @@ export default {
       rightClickInfo: {},
       dId:null,
       dIndex:null,
-      isVolatilePcDiff:false
+      isVolatilePcDiff:false,
+      isAddImg:false,
+      isAddImgChange:false,
+      wscData:[],
+      changeList:[],
+      isAnySelected:false,
+      detailObj:{}
     };
   },
   // --------------------生命周期钩子函数-------------------
@@ -604,6 +664,18 @@ export default {
         this.diffPcVolatile();
       },
     },
+    detailObj:{
+      deep:true,
+      handler(){
+        if(!Number.isFinite(this.detailObj.anchor.x))
+          this.detailObj.anchor.x = 0
+        if(!Number.isFinite(this.detailObj.anchor.y))
+          this.detailObj.anchor.y = 0
+        if(!Number.isFinite(this.detailObj.rotate))
+          this.detailObj.rotate = 0
+        redrawAll(this.ctx, this.canvas, this.rects,this.rotatePoint,false,this.canvas.clientWidth,this.canvas.clientHeight);
+      }
+    }
     // ---------------------------------------------------------
   },
   computed: {
@@ -615,7 +687,7 @@ export default {
           width: this.canvasWidth + "px",
         };
       }
-    },
+    }
   },
   methods: {
     copyArea(area) {
@@ -691,6 +763,15 @@ export default {
         console.log(e);
       }
     },
+    async reloadPcCanvas(){
+      try {
+        await this.getPrivateCompoments();
+        await this.loadImages();
+        this.initServeCanvas();
+      } catch (e) {
+        console.log(e);
+      }
+    },
     initMainCanvasData() {
       this.canvas = this.$refs.canvas;
       this.ctx = this.canvas.getContext("2d");
@@ -756,7 +837,11 @@ export default {
               this.privateComponents[item.privateComponentId].height *
                 this.ratio,
               (item.rotate * Math.PI) / 180,
-              item.privateComponentId
+              item.privateComponentId,
+              null,
+              null,
+              item.isConflictable,
+              item.isReservable
             )
           );
         });
@@ -777,7 +862,7 @@ export default {
           this.canvas.clientHeight + 10
         );
         detectRectsConflict(this.rects);
-        redrawAll(this.ctx, this.canvas, this.rects);
+        redrawAll(this.ctx, this.canvas, this.rects,null,false,this.canvas.clientWidth,this.canvas.clientHeight);
       });
     },
     initServeCanvas() {
@@ -798,12 +883,16 @@ export default {
               60,
               60,
               0,
-              Number(arr[k].id)
+              Number(arr[k].id),
+              null,
+              null,
+              arr[k].isConflictable,
+              arr[k].isReservable
             )
           );
           k++;
           if (k === arr.length) {
-            redrawAll(this.ctxServe, this.canvasServe, this.rectsServe);
+            redrawAll(this.ctxServe, this.canvasServe, this.rectsServe,null,false,this.canvasServe.clientWidth,this.canvasServe.clientHeight);
             return;
           }
         }
@@ -812,7 +901,7 @@ export default {
       this.observer = new ResizeObserver(() => {
         if (this.canvasServe.height != this.canvasServe.clientHeight) {
           this.canvasServe.height = this.canvasServe.clientHeight;
-          redrawAll(this.ctxServe, this.canvasServe, this.rectsServe);
+          redrawAll(this.ctxServe, this.canvasServe, this.rectsServe,null,false,this.canvasServe.clientWidth,this.canvasServe.clientHeight);
         }
       });
       this.observer.observe(this.canvas);
@@ -865,7 +954,7 @@ export default {
             Math.PI) /
           180;
         detectRectsConflict(this.rects);
-        redrawAll(this.ctx, this.canvas, this.rects, this.rotatePoint);
+        redrawAll(this.ctx, this.canvas, this.rects, this.rotatePoint,false,this.canvas.clientWidth,this.canvas.clientHeight);
       }
       // 拖拽（死区限制）
       if (
@@ -888,7 +977,7 @@ export default {
         this.canvasInfo.currentPoint.y = mouse.y;
         //重新绘制
         detectRectsConflict(this.rects);
-        redrawAll(this.ctx, this.canvas, this.rects, this.rotatePoint);
+        redrawAll(this.ctx, this.canvas, this.rects, this.rotatePoint,false,this.canvas.clientWidth,this.canvas.clientHeight);
       }
     },
     mainMouseDown(e) {
@@ -933,7 +1022,8 @@ export default {
         this.rects.forEach((item) => {
           if (item.isSelected === true) {
             item.isSelected = false;
-            redrawAll(this.ctx, this.canvas, this.rects, this.rotatePoint);
+            this.turnOffSelect();
+            redrawAll(this.ctx, this.canvas, this.rects, this.rotatePoint,false,this.canvas.clientWidth,this.canvas.clientHeight);
           }
         });
         this.canvasInfo = {
@@ -949,10 +1039,12 @@ export default {
       if (this.canvasInfo.status === canvasStatus.DRAG_START) {
         this.rects.forEach((item) => {
           item.isSelected = false;
+          this.turnOffSelect()
         });
         this.rects[this.canvasInfo.targetIndex].isSelected = true;
+        this.turnOnSelect(this.canvasInfo.targetIndex)
         setRectAbove(this.canvasInfo.targetIndex, this.rects);
-        redrawAll(this.ctx, this.canvas, this.rects, this.rotatePoint);
+        redrawAll(this.ctx, this.canvas, this.rects, this.rotatePoint,false,this.canvas.clientWidth,this.canvas.clientHeight);
       }
       this.canvasInfo = {
         status: canvasStatus.IDLE,
@@ -966,9 +1058,11 @@ export default {
       if (this.canvasInfo.status === canvasStatus.DRAG_START) {
         this.rects.forEach((item) => {
           item.isSelected = false;
+          this.turnOffSelect()
         });
         this.rects[this.canvasInfo.targetIndex].isSelected = true;
-        redrawAll(this.ctx, this.canvas, this.rects, this.rotatePoint);
+        this.turnOnSelect(this.canvasInfo.targetIndex)
+        redrawAll(this.ctx, this.canvas, this.rects, this.rotatePoint,false,this.canvas.clientWidth,this.canvas.clientHeight);
       }
       this.canvasInfo = {
         status: canvasStatus.IDLE,
@@ -1002,7 +1096,7 @@ export default {
           }
         });
         detectRectsConflict(this.rects);
-        redrawAll(this.ctx, this.canvas, this.rects, this.rotatePoint);
+        redrawAll(this.ctx, this.canvas, this.rects, this.rotatePoint,false,this.canvas.clientWidth,this.canvas.clientHeight);
       }
     },
     serverMouseMove(e) {
@@ -1032,7 +1126,7 @@ export default {
         this.canvasServeInfo.currentPoint.x = mouse.x;
         this.canvasServeInfo.currentPoint.y = mouse.y;
         //重新绘制
-        redrawAll(this.ctxServe, this.canvasServe, this.rectsServe);
+        redrawAll(this.ctxServe, this.canvasServe, this.rectsServe,null,false,this.canvasServe.clientWidth,this.canvasServe.clientHeight);
         this.canvasServeInfo.currentRect.drawAlphaImg(this.ctxServe);
       }
     },
@@ -1067,7 +1161,7 @@ export default {
         targetIndex: null,
         currentRect: null,
       };
-      redrawAll(this.ctxServe, this.canvasServe, this.rectsServe);
+      redrawAll(this.ctxServe, this.canvasServe, this.rectsServe,null,false,this.canvasServe.clientWidth,this.canvasServe.clientHeight);
     },
     serverMouseLeave(e) {
       if (this.canvasServeInfo.status === canvasStatus.DRAGING) {
@@ -1080,7 +1174,7 @@ export default {
         targetIndex: null,
         currentRect: null,
       };
-      redrawAll(this.ctxServe, this.canvasServe, this.rectsServe);
+      redrawAll(this.ctxServe, this.canvasServe, this.rectsServe,null,false,this.canvasServe.clientWidth,this.canvasServe.clientHeight);
     },
     rightClickServe(e) {
       var mouse = new Point(e.offsetX, e.offsetY);
@@ -1140,6 +1234,7 @@ export default {
     async loadImages() {
       await new Promise((resolve) => {
         var count = 0;
+        this.imgNum = 0;
         for (var src in this.sources) {
           this.imgNum++;
         }
@@ -1237,24 +1332,6 @@ export default {
         );
       }
     },
-    getWscs() {
-      this.$http
-        .get("/layout/wsc")
-        .then((res) => {
-          if (res.data.code === 1) {
-            this.wscs = res.data.data.wscs;
-            this.areas.forEach((item) => {
-              if (!this.buildings.includes(item.buildingName))
-                this.buildings.push(item.buildingName);
-            });
-          } else {
-            this.$message.error(res.data.msg);
-          }
-        })
-        .catch(() => {
-          this.$message.error("服务器访问错误");
-        });
-    },
     addPrivateCompoments() {
       this.$http
         .post("layout/pc", {
@@ -1265,17 +1342,7 @@ export default {
         })
         .then((res) => {
           if (res.data.code == 1) {
-            this.$set(this.privateComponents,res.data.data+'',{
-              id: res.data.data,
-              name: this.newPrivateComponent.name,
-              width: this.newPrivateComponent.width,
-              height: this.newPrivateComponent.height,
-              componentImage: {
-                id: this.newPrivateComponent.parentId,
-                imageUrl: this.sources[this.newPrivateComponent.parentId],
-              },
-            })
-            this.initServeCanvas()
+            this.reloadPcCanvas()
             this.isAddPc = false
             this.$message.success("添加成功");
           } else {
@@ -1553,6 +1620,84 @@ export default {
       this.volatilePrivateComponent.width=this.originalPrivateComponent.width
       this.volatilePrivateComponent.height=this.originalPrivateComponent.height
       this.isPcChange = true
+    },
+    addCI(){
+      this.$http.get("/layout/wsc").then(res=>{
+        if(res.data.code ==1){
+          this.wscData = res.data.data;
+          this.wscData.forEach((val,index)=>{
+            let tmp = false;
+            for(let key in this.privateComponents)
+              if(this.privateComponents[key].componentImage.id == val.id)
+                tmp=true
+            this.wscData[index].isChosen = tmp
+            this.wscData[index].imageUrl = "/api/"+this.wscData[index].imageUrl
+          })
+          this.changeList = JSON.parse(JSON.stringify(this.wscData))
+          this.isAddImg = true;
+        }
+        else{
+          this.$message.error(res.data.msg);
+        }
+      })
+      .catch(e=>{
+        this.$message.error("服务器访问异常")
+      })
+      this.isAddImg = true;
+    },
+    clearImgChange(){
+      this.isAddImgChange = false;
+      this.wscData = []
+      this.changeList = []
+    },
+    getWscUrl(index){
+      if(this.wscData[index])
+        return this.wscData[index].imageUrl
+      else 
+        return null
+    },
+    getWscBool(index){
+      if(this.wscData[index])
+        return this.wscData[index].isChosen
+      else 
+        return null
+    },
+    changeChosens(source,res){
+      let temp = false
+      this.changeList.forEach((val,index)=>{
+        if(source==val.imageUrl){
+          this.changeList[index].isChosen = res;
+        }
+        if(this.changeList[index].isChosen!=this.wscData[index].isChosen)
+          temp = true
+      })
+      this.isAddImgChange = temp;
+    },
+    changeImgs(){
+      this.changeList.forEach((val,index)=>{
+        if(this.wscData[index].isChosen==false&&this.changeList[index].isChosen==true){
+          this.$http.post("/layout/wsc",{id:this.changeList[index].id}).then(res=>{
+            if(res.data.code==0){
+              this.$message.error(res.data.msg)
+            }
+            else{
+              this.reloadPcCanvas()
+              this.isAddImg = false;
+              this.$message.success("添加成功")
+            }
+          }).catch(e=>{
+            this.$message.error("服务器访问异常")
+          })
+        }
+      })
+    },
+    turnOnSelect(index){
+      this.isAnySelected = true;
+      this.detailObj = this.rects[index]
+    },
+    turnOffSelect(){
+      this.isAnySelected = false;
+      this.detailObj = {}
     }
   },
 };
@@ -1599,14 +1744,14 @@ export default {
   outline: 1px solid rgb(235, 235, 235);
   padding: 2px 16px 2px 24px;
 }
-#editItem {
+.editItem {
   position: absolute;
   top: 27px;
   left: 0px;
   height: 148px;
   width: 328px;
 }
-#editItem > img {
+.editItem > img {
   position: absolute;
   top: 12px;
   left: 13px;
@@ -1614,7 +1759,7 @@ export default {
   width: 30px;
   border-radius: 12.5px;
 }
-#editItem > h1 {
+.editItem > h1 {
   position: absolute;
   top: -1px;
   left: 51px;
@@ -1626,7 +1771,7 @@ export default {
   line-height: 29px;
   font-weight: 700;
 }
-#editItem > p {
+.editItem > p {
   position: absolute;
   box-sizing: border-box;
   top: 24px;
@@ -1815,5 +1960,20 @@ export default {
 }
 ul > .el-select-dropdown__item {
   padding-left: 12px;
+}
+#imgOuter{
+  display: flex;
+  flex-direction: column;
+}
+.imgLine{
+  display: flex;
+  margin-bottom: 10px;
+  // background-color: pink;
+}
+.imgInner{
+  margin-right: 10px;
+  height: 90px;
+  width: 130px;
+  // background-color: yellow;
 }
 </style>

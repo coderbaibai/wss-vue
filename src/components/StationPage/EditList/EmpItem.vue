@@ -1,30 +1,20 @@
 <template>
   <div class="editItem">
     <!-- <img :src="itemInfo.url"> -->
-    <img :src="itemInfo.avatarUrl" />
+    <img src="../../../assets/seat.svg" />
     <h1>{{itemInfo.name}}</h1>
-    <img src="../../assets/edit.png" />
+    <img id="editImg" src="../../../assets/edit.png" @click="beginEdit" />
     <p>
       人员编号：{{ itemInfo.wid }}<br />
       工位编号：{{ itemInfo.place }}<br />
       职位：{{ itemInfo.post }}<br />
       工位使用开始时间：{{ itemInfo.start }}<br />
       工位使用结束时间：{{ itemInfo.end }}<br />
-      当前状态： {{itemInfo.status}} <br />
+      当前状态： 已预约 <br />
     </p>
   </div>
 </template>
 <script>
-// 输入样例
-//   itemInfo:{
-//         name: "张三",
-//         url: "../assets/round_people.png",
-//         wid:2367181912,
-//         sid:"A401",
-//         post:"高级开发工程师",
-//         begin:"2023-3-01",
-//         end:"2023-3-01"
-//     }
 export default {
   props: {
     itemInfo: {
@@ -38,23 +28,11 @@ export default {
     },
   },
   methods:{
-    getStatus(){
-      switch(this.itemInfo.status){
-        case 0:
-          return '已预约'
-        case 1:
-          return '使用中'
-        case 2:
-          return '已完成'
-        case 3:
-          return '已违约'
-        case 4:
-          return '已取消'
-        default:
-          return ''
-      }
+    beginEdit(){
+      this.$emit("beginEdit",)
     }
   }
+  
 };
 </script>
 
@@ -112,5 +90,8 @@ export default {
 .editItem:hover {
   z-index: 15;
   outline: 1.5px solid deepskyblue;
+}
+#editImg{
+  cursor: pointer;
 }
 </style>

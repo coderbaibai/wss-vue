@@ -49,6 +49,11 @@ export default {
         endEdit(){
             this.inputAttr.isreadOnly = true
             this.inputAttr.unselectable = 'on'
+            if(this.newName==""){
+                this.$message.error("姓名不能为空")
+                this.cancelAllChange();
+                return
+            }
             if(this.newName!=this.name){
                 this.$emit('changeName',this.newName)
             }

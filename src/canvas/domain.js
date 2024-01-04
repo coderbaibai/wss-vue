@@ -16,14 +16,16 @@ export const Middle = {
     middleBottom:2,
     middleRight:3
 }
-export var redrawAll = function(ctx,canvas,rects,rotatePoint,isWordsShow){
-    ctx.clearRect(0,0,canvas.clientWidth+10,canvas.clientHeight+10)
+export var redrawAll = function(ctx,canvas,rects,rotatePoint,isWordsShow,canvasWidth,canvasHeight){
+    ctx.clearRect(0,0,canvasWidth+10,canvasHeight+10)
     var index = -1;
     for(var i=0;i<rects.length;i++){
         rects[i].draw(ctx,isWordsShow)
         if(rects[i].isSelected)
             index = i
     }
+    if(index!=-1)
+        rects[index].draw(ctx,isWordsShow)
     if(!rotatePoint)
         return
     if(index!=-1){
@@ -43,6 +45,8 @@ export function RoratePoint(image,point){
     this.distance = 23
     this.anchor = {x:point.x+this.width/2,y:point.y+this.height/2}
     this.draw = function(ctx){
+        if(this.anchor.x<=0||this.anchor.y<=0)
+            return;
         ctx.save()
         ctx.translate(this.anchor.x,this.anchor.y)
         ctx.drawImage(this.image,-this.width/2,-this.height/2,this.width,this.height)
@@ -61,7 +65,7 @@ export function RoratePoint(image,point){
         this.anchor.y = (leftTop.y+rightTop.y)/2 - this.distance*Math.cos(Rect.rotate)
     }
 }
-export function Rect(id,image,point,width,height,rotate,pid,sid,status){
+export function Rect(id,image,point,width,height,rotate,pid,sid,status,isConflictable,isReservable){
     this.id = id
     this.pid = pid
     this.image = image
@@ -74,8 +78,10 @@ export function Rect(id,image,point,width,height,rotate,pid,sid,status){
     this.isConflict = false
     this.sid = sid
     this.status = status
+    this.isConflictable = isConflictable
+    this.isReservable = isReservable
     this.getCopy = ()=>{
-        return new Rect(this.id,this.image,new Point(this.anchor.x-width/2,this.anchor.y-height/2),this.width,this.height,this.rotate,this.pid,this.sid)
+        return new Rect(this.id,this.image,new Point(this.anchor.x-width/2,this.anchor.y-height/2),this.width,this.height,this.rotate,this.pid,this.sid,this.status,this.isConflictable,this.isReservable)
     }
     this.draw = function(ctx,isWordsShow){
         this.drawImg(ctx,isWordsShow)
@@ -107,7 +113,9 @@ export function Rect(id,image,point,width,height,rotate,pid,sid,status){
         ctx.translate(this.anchor.x,this.anchor.y)
         ctx.rotate(this.rotate)
         ctx.strokeStyle = "rgb(0,0,255)"
-        ctx.setLineDash([5,5])
+        ctx.setLineDash([10,10])
+        if(isWordsShow==true)
+            ctx.lineWidth = 3;
         ctx.strokeRect(-this.width/2,-this.height/2,this.width,this.height)
         ctx.restore()
     }
@@ -140,7 +148,7 @@ export function Rect(id,image,point,width,height,rotate,pid,sid,status){
                 ctx.restore()
             }
             ctx.rotate(-this.rotate)
-            const fontSize = this.width*5/12;
+            const fontSize = Math.min(this.width,this.height)*7/12;
             ctx.font = `${fontSize}px PingFang HK`
             ctx.fillStyle = 'black'
             ctx.textAlign = "center";
@@ -232,6 +240,8 @@ export function isPointInAnyRect(point,rects){
 }
 //判断矩形和矩形是否冲突的办法
 export function isTheRectsConflict(rectA,rectB){
+    if(!rectA.isConflictable||!rectB.isConflictable)
+        return false
     var ALT = rectA.getCorner(Corner.leftTop)
     var ART = rectA.getCorner(Corner.rightTop)
     var ALB = rectA.getCorner(Corner.leftBottom)
@@ -314,12 +324,14 @@ export function getColorFromStatus(status){
         case 0:
             return false;
         case 1:
-            return `rgb(61, 204, 15)`;
+            return `rgb(61, 204, 15,0.6)`;
         case 2:
-            return `rgb(52, 168, 238)`;
+            return `rgb(52, 168, 238,0.4)`;
         case 3:
-            return `rgb(251, 205, 22)`;
+            return `rgb(251, 205, 22,0.4)`;
         case 4:
-            return `rgb(249, 22, 11)`;
+            return `rgb(249, 22, 11,0.4)`;
+        default:
+            return false;
     }
 }

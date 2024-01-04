@@ -118,7 +118,8 @@ export default {
     isNew:false,
     items:{},
     header:{},
-    loading:true
+    loading:true,
+    hsRatio:2,
     };
   },
   props: ["areas"],
@@ -189,6 +190,9 @@ export default {
     isAreaOk(){
       if(this.isImgOk&&this.isAreaOk)
         this.autoSelectArea()
+    },
+    area(){
+      this.$emit("changeArea",this.area);
     }
   },
   computed:{
@@ -197,8 +201,8 @@ export default {
         return null
       else{
         return {
-          height:this.canvasHeight+'px',
-          width:this.canvasWidth+'px'
+          height:this.canvasHeight/this.hsRatio+'px',
+          width:this.canvasWidth/this.hsRatio+'px'
         }
       }
     }
@@ -313,7 +317,7 @@ export default {
       this.mainCanvasRedraw()
       //开启尺寸监视，实时修改画布尺寸
       this.windowObserve = new ResizeObserver(()=>{
-          if(this.canvas.height!=this.canvas.clientHeight||this.canvas.width!=this.canvas.clientWidth){
+          if(this.canvas.height!=this.canvas.clientHeight*this.hsRatio||this.canvas.width!=this.canvas.clientWidth*this.hsRatio){
               this.isOrigin = true
               this.$nextTick(()=>{
                   try{
@@ -329,8 +333,8 @@ export default {
     },
     mainCanvasRedraw(){
       var oldRatio = this.ratio
-      this.canvasWidth=this.canvas.clientWidth
-      this.canvasHeight=this.canvas.clientHeight
+      this.canvasWidth=this.canvas.clientWidth*this.hsRatio
+      this.canvasHeight=this.canvas.clientHeight*this.hsRatio
       this.ratio = Math.min(this.canvasWidth/this.area.width,this.canvasHeight/this.area.height)
       if(this.canvasWidth/this.area.width<this.canvasHeight/this.area.height){
           this.canvasHeight = this.area.height*this.ratio
@@ -345,7 +349,7 @@ export default {
       if(this.rects.length==0||this.isNew){
           this.rects = []
           this.components.forEach((item,index)=>{
-              this.rects.push(new Rect(index,this.images[this.privateComponents[item.privateComponentId].componentImage.id],new Point(item.x*this.ratio,item.y*this.ratio),this.privateComponents[item.privateComponentId].width*this.ratio,this.privateComponents[item.privateComponentId].height*this.ratio,item.rotate*Math.PI/180,item.privateComponentId,item.sid,item.status))
+              this.rects.push(new Rect(index,this.images[this.privateComponents[item.privateComponentId].componentImage.id],new Point(item.x*this.ratio,item.y*this.ratio),this.privateComponents[item.privateComponentId].width*this.ratio,this.privateComponents[item.privateComponentId].height*this.ratio,item.rotate*Math.PI/180,item.privateComponentId,item.sid,item.status,item.isConflictable,item.isReservable))
           })
       }
       else{
@@ -357,30 +361,34 @@ export default {
           })
       }
       this.$nextTick(()=>{
-          this.ctx.clearRect(0,0,this.canvas.clientWidth+10,this.canvas.clientHeight+10)
+          this.ctx.clearRect(0,0,this.canvasWidth+10,this.canvasHeight+10)
           detectRectsConflict(this.rects)
-          redrawAll(this.ctx,this.canvas,this.rects,null,true)
+          redrawAll(this.ctx,this.canvas,this.rects,null,true,this.canvasWidth,this.canvasHeight)
           this.loading = false
       })
     },
     mainMouseDown(e){
-      var mouse = new Point(e.offsetX,e.offsetY)
+      var mouse = new Point(e.offsetX*this.hsRatio,e.offsetY*this.hsRatio)
       var targetIndex = isPointInAnyRect(mouse,this.rects)
       this.rects.forEach((item)=>{
         item.isSelected = false
       })
       if(Number.isFinite(targetIndex)){
+        if(!this.rects[targetIndex].isReservable||this.rects[targetIndex].status==3){
+          redrawAll(this.ctx,this.canvas,this.rects,null,true,this.canvasWidth,this.canvasHeight)
+          return
+        }
         this.targetId = this.rects[targetIndex].id
         this.rects[targetIndex].isSelected = true
-        this.$emit('reserve',this.area,this.changeIdIntoSid(this.rects[targetIndex].id+1))
+        this.$emit('reserve',this.area,this.changeIdIntoSid(this.rects[targetIndex].sid))
       }
       //判断是选中还是拖拽，如果在死区内就是选中
-      redrawAll(this.ctx,this.canvas,this.rects,null,true)
+      redrawAll(this.ctx,this.canvas,this.rects,null,true,this.canvasWidth,this.canvasHeight)
     },
     mainMouseMove(e){
-      var mouse = new Point(e.offsetX,e.offsetY)
+      var mouse = new Point(e.offsetX*this.hsRatio,e.offsetY*this.hsRatio)
       // 安全性检查
-      if(mouse.x<0||mouse.x>=this.canvas.clientWidth||mouse.y<0||mouse.y>=this.canvas.clientHeight)
+      if(mouse.x<0||mouse.x>=this.canvasWidth||mouse.y<0||mouse.y>=this.canvasHeight)
         return
       // 设置鼠标样式
       if(Number.isFinite(isPointInAnyRect(mouse,this.rects))){

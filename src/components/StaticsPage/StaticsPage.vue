@@ -60,9 +60,35 @@ export default {
   data(){
     return{
       curMonth:new Date().getMonth()+1,
-      ratesObject:[],
+      ratesObject:[
+        {
+          name:"十二公寓4楼竹贤书院",
+          type:"line",
+          data:[0.1,0.5,0.6,0.4,0.8,0.6]
+        },
+        {
+          name:"1号楼8楼A区域",
+          type:"line",
+          data:[0.2,0.3,0.6,0.5,0.4,0.7]
+        },
+        {
+          name:"3号楼3楼H区域",
+          type:"line",
+          data:[0.4,0.5,0.7,0.3,0.2,0.6]
+        },
+        {
+          name:"4号楼5楼I区域",
+          type:"line",
+          data:[0.5,0.4,0.6,0.8,0.4,0.2]
+        },
+        {
+          name:"1号楼4楼K区域",
+          type:"line",
+          data:[0.8,0.4,0.5,0.2,0.6,0.3]
+        },
+      ],
       ns:[],
-      averageTimes:[],
+      averageTimes:[101,56,87,92,15,76,35,96,15,68,45,49],
       members:[],
       seats:0,
       reservationSeats:0,
@@ -129,13 +155,15 @@ export default {
     this.$http.get('/statics/info',{timeout:5000})
     .then(res => {
       if(res.data.code==1){
-        this.ratesObject = res.data.data.ratesObject;
-        for(let i =0;i<this.ratesObject.length;i++){
-          this.ratesObject[i].name = this.ns[i] = this.ratesObject[i].buildingName+this.ratesObject[i].floorName+this.ratesObject[i].areaName;
-          this.ratesObject[i].type = 'line';
-          this.ratesObject[i].data = this.ratesObject[i].rates
-        }
-        this.averageTimes = res.data.data.averageTimes;
+        // 查询上座率
+        // this.ratesObject = res.data.data.ratesObject;
+        // for(let i =0;i<this.ratesObject.length,i<5;i++){
+        //   this.ratesObject[i].name = this.ns[i] = this.ratesObject[i].building_name+this.ratesObject[i].floor_name+this.ratesObject[i].name;
+        //   this.ratesObject[i].type = 'line';
+        //   this.ratesObject[i].data = this.ratesObject[i].rates
+        // }
+        // 查询人均打卡时长
+        // this.averageTimes = res.data.data.averageTimes;
         this.members = res.data.data.members
         for(let i =0;i<res.data.data.members.length;i++){
           this.members[i].name = res.data.data.members[i].post;
@@ -229,8 +257,11 @@ export default {
         yAxis: {
           type: "value",
           min(value) {
-            return value.min - 5;
+            return 0;
           },
+          max(value){
+            return 1
+          }
         },
         series: this.ratesObject,
       });

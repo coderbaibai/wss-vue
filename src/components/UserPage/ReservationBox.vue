@@ -23,7 +23,7 @@
 	  </div>
 	</div>
 	<div id="bottomItems">
-	  <el-table :data="reservations" :row-class-name="tableRowClassName" height="470" stripe style="width: 100%">
+	  <el-table :data="reservations" :row-class-name="tableRowClassName" height="470" style="width: 100%">
 		<el-table-column prop="workstation" label="地点" width="220">
 		</el-table-column>
 		<el-table-column prop="druation" label="预约时间" width="400">
